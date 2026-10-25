@@ -1,0 +1,1 @@
+const input=document.getElementById('width'),frame=document.getElementById('app-frame');input.addEventListener('change',()=>{frame.style.width=input.value+'px';document.getElementById('size').textContent=input.value+' CSS px'});
