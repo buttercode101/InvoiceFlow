@@ -37,3 +37,9 @@ run_mode phone
 adb shell wm size 1600x2560
 adb shell wm density 240
 run_mode tablet
+
+adb shell wm size 1280x720
+adb shell wm density 240
+run_mode landscape
+adb shell wm size reset
+adb shell wm density reset
