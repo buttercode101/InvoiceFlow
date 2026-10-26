@@ -1,0 +1,18 @@
+{
+  "status": "Engineering inventory, not completed Google Play declarations",
+  "local": [
+    "business details",
+    "customers",
+    "invoices/quotes",
+    "payments and expenses",
+    "explicit backups"
+  ],
+  "server": [
+    "None intentionally added by this Android client; audit all production libraries and network calls before declaring no collection"
+  ],
+  "remaining": [
+    "Verify actual release binary makes no unexpected network transfers",
+    "Privacy policy with actual publisher/support contact",
+    "Review financial-features declaration against invoicing functionality; do not claim lending/banking capabilities"
+  ]
+}
