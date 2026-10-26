@@ -10,5 +10,9 @@
  const original=HTMLAnchorElement.prototype.click;HTMLAnchorElement.prototype.click=function(){if(!handle(this))return original.call(this)};
  const dispatch=HTMLAnchorElement.prototype.dispatchEvent;HTMLAnchorElement.prototype.dispatchEvent=function(event){if(event.type==='click'&&handle(this))return false;return dispatch.call(this,event)};
  document.addEventListener('click',e=>{const anchor=e.target.closest?.('a[download]');if(handle(anchor)){e.preventDefault();e.stopImmediatePropagation()}},true);
- window.__ANDROID_APP__=true;
+ const nativeCall=call;
+window.AndroidNative={isNative:true,
+ speak:(text,rate)=>nativeCall('speak',{text:String(text||'').slice(0,3000),rate:Number(rate)||1}).catch(()=>{}),
+ stop:()=>nativeCall('stopSpeech',{}).catch(()=>{})};
+window.__ANDROID_APP__=true;
 })();
