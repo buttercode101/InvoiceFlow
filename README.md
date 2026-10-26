@@ -1,35 +1,58 @@
-# InvoiceFlow ZA · v0.4.0
+# InvoiceFlow ZA
 
-A local-first invoicing and cash-collection workspace for South African small businesses. Source recovered from the original Sites repository, rather than rebuilt. No runtime packages, paid API or server database are required.
+**Send the invoice. Track what is owed. Spend less time on admin.**
 
-## Run and verify
+InvoiceFlow is a local-first invoicing workspace for South African freelancers and small businesses. Keep customers, quotes, invoices, payments and expenses together, then export the documents and records you need. Your records live in your browser; no account or server database is required.
 
-Serve `dist/` on a static HTTP server. HTTPS is required for service workers, installability, encrypted backups and modern clipboard/share APIs. `npm test` runs 64 regression tests; `npm run check` checks all application JavaScript syntax.
+[Open InvoiceFlow](https://invoiceflow-za.vercel.app) · [Run locally](#quick-start) · [Workflow details](PRODUCT-DETAILS.md) · [Verification](REPOSITORY-VERIFICATION.md)
 
-## Supported workflows
+## From quote to paid
 
-- Customers, reusable items, sequential invoice drafts and locked issued snapshots.
-- Non-VAT invoices by default; registered-vendor details, 15% VAT inclusive/exclusive, zero-rated or exempt whole-document treatment. Separate invoices are needed for mixed treatments.
-- Fixed rand discounts, requested deposits distinct from payments, three document styles and an unsaved document preview.
-- Quotes with manual sharing/acceptance/decline, PDF export and idempotent conversion to an invoice draft.
-- Partial payments, correction reversals, payment receipts and immutable credit notes against unpaid balances. Credit-note VAT is allocated cumulatively to avoid cent drift. No refunds or money movement.
-- Customer statements and CSV export, cash-date reports, monthly trends, receivables ageing and top customers by actual recorded receipts.
-- Monthly recurring schedules with month-end anchors, pause/resume and one due occurrence generated as a draft per click. The browser must be open; no automatic sending.
-- Reminder templates, existing Yoco/PayFast checkout-link sharing, and reviewed CSV bank receipts. No API integration, bank verification or automatic reconciliation.
-- Local receipt photo/PDF attachment per expense (PNG/JPEG/PDF up to 500 KB), included in JSON/encrypted backups; downloadable original files. Treat attached PDFs as untrusted documents when opening them.
-- Expenses, expense CSV import and duplicate skipping, accountant CSV exports.
-- JSON backup/restore with an atomic recovery checkpoint, optional AES-256-GCM encrypted backups using PBKDF2-SHA256 (310,000 iterations), password confirmation and authenticated decryption.
-- Five separate business workspaces, isolated demo records, light/dark mode and responsive layouts.
-- PWA installation guidance, cached offline assets after the first successful HTTPS load, explicit update application, safe cross-tab revision checks and a 10 MB restorable-workspace budget.
+1. Set up your business and add a customer and reusable items.
+2. Create a quote or invoice draft and review its document preview.
+3. Issue an invoice snapshot and download its PDF for sharing.
+4. Record full or partial payments and see what remains outstanding.
+5. Record expenses, review cash-date reports and export an accountant CSV.
+6. Download a backup for each business, optionally password encrypted.
 
-## Data and tax boundaries
+## What it handles
 
-All business records live in browser IndexedDB, per browser and domain. Device storage itself is not encrypted by this app; only an explicitly encrypted downloaded backup is encrypted. Export a backup for every business. There is no cloud synchronization, automatic backup, user-account service, billing subscription or paid AI assistant. PDF/CSV exports and backups contain customer/financial information; store and share them carefully. Existing version-1 records remain supported without changing historical invoice totals.
+| Need | Included workflow |
+| --- | --- |
+| Professional documents | Quotes, invoices, receipts, credit notes and customer statements |
+| Getting paid | Partial payments, ageing, reminder templates and existing checkout-link sharing |
+| Repeat work | Monthly recurring schedules that create a draft when you request it |
+| South African businesses | Rand amounts, non-VAT defaults and VAT vendor settings |
+| Keeping records | Expenses, receipt attachments, PDF/CSV exports and backup/restore |
+| Separate businesses | Up to five local workspaces and isolated demo records |
 
-VAT numbers are format-checked, not verified with SARS. Fields and calculations follow reviewed SARS invoice requirements, but the app provides no certification or tax advice. Credit notes reduce unpaid balances only. Receipt documents acknowledge user-recorded payments, not bank-verified settlement. Email/share handoff does not establish delivery. Natural-language AI drafting and automatic delivery are deferred until an explicitly configured provider and cost/privacy model exist.
+There is no automatic payment collection, bank verification, cloud sync or background invoice sending. Recorded payments are your entries, not proof of bank settlement. Credit notes reduce unpaid balances; they do not issue refunds. Mixed VAT treatments require separate invoices. Read the [workflow and data details](PRODUCT-DETAILS.md) before relying on a specialised accounting workflow.
+
+## Quick start
+
+Use Node.js 24 for the checks and Python 3 for a simple local server. No npm runtime packages or install step are required.
+
+```bash
+npm test
+npm run check
+python3 -m http.server 3000 --directory dist
+```
+
+Open http://localhost:3000. Use HTTPS in production for service workers, encrypted backups and modern share APIs. Offline assets are available after a successful load and cache setup. The browser must be open to generate recurring drafts.
+
+## Your records belong on your backup too
+
+Records are stored in IndexedDB per browser and origin. Clearing browser data, changing domain or losing the device can remove access. Export a backup for **every** workspace. Encrypted downloaded backups use AES-256-GCM; the local browser database itself is not encrypted by the app. Restore into the intended workspace and keep the password separately.
 
 ## Source and hosting
 
-The original source is version-controlled in the existing Sites source repository. The separate public `buttercode101/InvoiceFlow` GitHub repository was empty; the connected GitHub integration rejected writes with 403 “Resource not accessible by integration” on 23 October 2026. Do not claim a GitHub push or Git-linked Vercel build has been established. Vercel deployments are source-file deployments with a recorded source commit.
+The complete application is now present in [buttercode101/InvoiceFlow](https://github.com/buttercode101/InvoiceFlow), on `main`. The earlier empty-repository/write-permission note described 23 October and is superseded by the source import. The app is served from `dist/`; this repository includes a static-hosting manifest and a test workflow. Their presence does not prove the connected Vercel production project uses the latest commit. Deployment linkage and production equality must be verified separately.
 
-See `RELEASE_2026-10-23.md` for verification evidence and remaining limits. Previous audits remain historical records.
+## Project guide
+
+- [Fresh repository checks and release limits](REPOSITORY-VERIFICATION.md)
+- [Detailed features and tax/data boundaries](PRODUCT-DETAILS.md)
+- [Previous release evidence](RELEASE_2026-10-23.md) and [validation](VALIDATION.md)
+- [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md)
+
+Current source version: **0.4.0**. Tax fields are aids, not SARS verification or tax advice.

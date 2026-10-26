@@ -2,3 +2,6 @@
 node_modules/
 dist/qa.html
 dist/qa.js
+.env
+.env.*
+!.env.example
