@@ -114,3 +114,5 @@ function offerUpdate(registration){const existing=$('#apply-update');if(existing
 boot();
 
 if(globalThis.AppHost)window.handleAndroidBack=()=>{if(modal.open){modal.close();return true}if(route.page!=='overview'){goto('overview');return true}return false};
+
+if(globalThis.AppHost)window.requestAndroidHome=()=>{goto('overview');return true};

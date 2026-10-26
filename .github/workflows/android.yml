@@ -45,14 +45,7 @@ jobs:
           profile: pixel_6
           disable-animations: true
           emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
-          script: |
-            ./android/gradlew -p android --no-daemon connectedDebugAndroidTest
-            mkdir -p android/emulator-evidence
-            adb shell run-as za.co.buttercode.invoiceflow cat files/evidence/launch-offline.png > android/emulator-evidence/phone-offline.png
-            adb shell wm size 1600x2560
-            adb shell wm density 240
-            ./android/gradlew -p android --no-daemon connectedDebugAndroidTest
-            adb shell run-as za.co.buttercode.invoiceflow cat files/evidence/launch-offline.png > android/emulator-evidence/tablet-offline.png
+          script: bash android/emulator-check.sh
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
