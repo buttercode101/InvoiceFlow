@@ -23,3 +23,6 @@
 .stats,.stats:has(> :nth-child(5)){grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
 .stats .stat-value{white-space:nowrap;overflow-wrap:normal;font-size:clamp(18px,2vw,26px)}
 .stats .stat-value.long-amount{font-size:20px}
+
+/* Four dashboard totals use balanced rows on tablets. */
+@media (min-width:768px) and (max-width:1200px){.stats:not(:has(> :nth-child(5))){grid-template-columns:repeat(2,minmax(0,1fr))}}

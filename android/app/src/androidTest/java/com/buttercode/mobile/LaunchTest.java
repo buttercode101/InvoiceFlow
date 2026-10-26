@@ -26,6 +26,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;import androidx.test.platfo
   Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();
   try(ActivityScenario<MainActivity> scenario=launch()){
    ready(scenario);
+   assertEquals("true",js(scenario,"(()=>{const stats=document.querySelector('.stats');return !stats||stats.children.length!==4||innerWidth<768||innerWidth>1200||getComputedStyle(stats).gridTemplateColumns.split(' ').length===2})()"));
    for(int n=0;n<60&&!"1".equals(js(scenario,"document.querySelectorAll('[data-android-menu]').length"));n++)Thread.sleep(100);
    assertEquals("1",js(scenario,"document.querySelectorAll('[data-android-menu]').length"));
    scenario.onActivity(a->{android.view.ViewGroup parent=(android.view.ViewGroup)a.web.getParent();assertSame("No native toolbar may sit below the product",a.web,parent.getChildAt(parent.getChildCount()-1));});
