@@ -9,13 +9,15 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;import androidx.test.platfo
   try(ActivityScenario<MainActivity> scenario=launch()){
    ready(scenario);assertEquals("true",js(scenario,"typeof window.AppHost!=='undefined'&&typeof window.AndroidFiles?.exportUrl==='function'"));
    scenario.onActivity(a->{a.web.getSettings().setBlockNetworkLoads(true);a.web.loadUrl(BuildConfig.APP_ORIGIN+"/?offlineSmoke=1");});for(int n=0;n<80;n++){if("true".equals(js(scenario,"location.search.includes('offlineSmoke=1')&&document.readyState==='complete'&&!!document.querySelector('#app h1,#root h1')")))break;Thread.sleep(250);}ready(scenario);
-   saveScreenshot(context,"offline");
+   saveScreenshot(scenario,context,"offline");
    assertEquals("false",js(scenario,"document.body.innerText.includes('We couldn’t open your workspace')||document.body.innerText.includes('We couldn’t open your local library')"));
    assertEquals("false",js(scenario,"document.documentElement.scrollWidth>innerWidth+2"));
 
   }
  }
- private void saveScreenshot(Context context,String label)throws Exception{
+ private void saveScreenshot(ActivityScenario<MainActivity> scenario,Context context,String label)throws Exception{
+  CountDownLatch painted=new CountDownLatch(1);scenario.onActivity(a->a.web.postVisualStateCallback(System.nanoTime(),new android.webkit.WebView.VisualStateCallback(){@Override public void onComplete(long id){painted.countDown();}}));assertTrue("WebView did not commit its rendered frame",painted.await(10,TimeUnit.SECONDS));
+  InstrumentationRegistry.getInstrumentation().waitForIdleSync();Thread.sleep(600);
   Bitmap image=InstrumentationRegistry.getInstrumentation().getUiAutomation().takeScreenshot();assertNotNull("No emulator screenshot",image);
   android.content.ContentValues values=new android.content.ContentValues();values.put(android.provider.MediaStore.Images.Media.DISPLAY_NAME,BuildConfig.APPLICATION_ID+"-"+label+".png");values.put(android.provider.MediaStore.Images.Media.MIME_TYPE,"image/png");String mode=context.getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_LANDSCAPE?"landscape":context.getResources().getConfiguration().smallestScreenWidthDp>=600?"tablet":"phone";values.put(android.provider.MediaStore.Images.Media.RELATIVE_PATH,"Pictures/AndroidAcceptance/"+mode);android.net.Uri uri=context.getContentResolver().insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI,values);assertNotNull(uri);try(OutputStream out=context.getContentResolver().openOutputStream(uri)){assertNotNull(out);assertTrue(image.compress(Bitmap.CompressFormat.PNG,100,out));}image.recycle();
  }
@@ -42,17 +44,17 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;import androidx.test.platfo
     assertTrue("System-bar icons did not follow "+theme,matched.get());Thread.sleep(250);
     assertEquals("false",js(scenario,"document.documentElement.scrollWidth>innerWidth+2"));
     assertEquals("true",js(scenario,"(()=>{const r=document.querySelector('[data-android-menu]').getBoundingClientRect();return r.width>=40&&r.height>=40&&r.right<=innerWidth+1})()"));
-    saveScreenshot(context,theme);
+    saveScreenshot(scenario,context,theme);
    }
    // Re-rendering an app screen must not duplicate the native controls.
    js(scenario,"window.requestAndroidHome&&window.requestAndroidHome()");Thread.sleep(400);
    assertEquals("1",js(scenario,"document.querySelectorAll('[data-android-menu]').length"));
    scenario.onActivity(a->a.web.getSettings().setTextZoom(140));Thread.sleep(400);
    assertEquals("false",js(scenario,"document.documentElement.scrollWidth>innerWidth+2"));
-   saveScreenshot(context,"large-text");scenario.onActivity(a->a.web.getSettings().setTextZoom(100));
+   saveScreenshot(scenario,context,"large-text");scenario.onActivity(a->a.web.getSettings().setTextZoom(100));
    js(scenario,"document.querySelector('[data-android-menu]').click()");Thread.sleep(300);
    android.view.accessibility.AccessibilityNodeInfo screen=InstrumentationRegistry.getInstrumentation().getUiAutomation().getRootInActiveWindow();assertNotNull(screen);assertFalse("App menu did not open",screen.findAccessibilityNodeInfosByText("App controls").isEmpty());
-   saveScreenshot(context,"app-menu");
+   saveScreenshot(scenario,context,"app-menu");
    InstrumentationRegistry.getInstrumentation().getUiAutomation().performGlobalAction(android.accessibilityservice.AccessibilityService.GLOBAL_ACTION_BACK);
   }
  }
