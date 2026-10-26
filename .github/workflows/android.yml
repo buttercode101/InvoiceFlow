@@ -1,7 +1,7 @@
 name: Android internal builds
 on:
   push:
-    branches: [android/playstore-prep]
+    branches: [android/playstore-prep, main]
   pull_request:
     paths: ['android/**', '.github/workflows/android.yml']
   workflow_dispatch:
