@@ -1,0 +1,16 @@
+{
+  "app": "InvoiceFlow ZA",
+  "packageId": "za.co.buttercode.invoiceflow",
+  "packageIdStatus": "provisional until first Play upload",
+  "targetSdk": 36,
+  "minSdk": 26,
+  "versionCode": 1,
+  "signedRelease": false,
+  "physicalDeviceAcceptance": false,
+  "playConsoleSetup": false,
+  "privacyAndDataSafetyReviewed": false,
+  "closedTestingCompleted": false,
+  "productionApproved": false,
+  "billingReviewed": null,
+  "ugcModerationReviewed": null
+}
