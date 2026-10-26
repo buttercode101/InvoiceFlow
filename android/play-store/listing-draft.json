@@ -4,9 +4,9 @@
   "shortDescription": "Create invoices, track payments and manage expenses on your device.",
   "fullDescription": "InvoiceFlow ZA\n\nManage customers, items, invoices, quotes and expenses.\nRecord payments and review outstanding balances.\nExport PDFs, CSV files and explicit backups using Android file controls.\nKeep business records on this device; no account is required.\n\nData saved inside this Android app is separate from records saved in your browser. Export backups before clearing app data or uninstalling.",
   "category": "Business",
-  "supportEmail": null,
+  "supportEmail": "buttercode101@gmail.com",
   "privacyPolicyUrl": "https://invoiceflow-za.vercel.app/privacy.html",
-  "publisherIdentity": null,
+  "publisherIdentity": "TheRealButter",
   "targetAudience": "Owner must choose and verify; not declared",
   "countries": "Owner must confirm; not configured",
   "screenshots": "Required: actual Android builds, no mocked product claims"
