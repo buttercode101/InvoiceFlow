@@ -66,4 +66,22 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;import androidx.test.platfo
  }
 
  @Test public void nativeExportRequiresExactSequentialBytes()throws Exception{Context context=InstrumentationRegistry.getInstrumentation().getTargetContext();ExportStore store=new ExportStore(context.getCacheDir());String token=store.begin("invoice.pdf","application/pdf",4);try{store.chunk(token,1,"JVBERg==");fail("Out-of-order export accepted");}catch(IOException expected){}store.chunk(token,0,"JVBERg==");File file=store.finish(token);assertEquals(4,file.length());try(InputStream in=new FileInputStream(file)){assertEquals('%',in.read());}assertTrue(file.delete());store.abort();}
+ @Test public void rotatingKeepsTheLivePageAndUnsubmittedInput()throws Exception{
+  try(ActivityScenario<MainActivity> scenario=launch()){
+   ready(scenario);
+   AtomicReference<android.webkit.WebView> original=new AtomicReference<>();
+   scenario.onActivity(a->original.set(a.web));
+   js(scenario,"(()=>{const field=document.createElement('input');field.id='rotation-draft';field.value='Unsubmitted draft';document.body.append(field);window.rotationDraft=true;return true})()");
+   AtomicInteger target=new AtomicInteger();
+   scenario.onActivity(a->{boolean portrait=a.getResources().getConfiguration().orientation==android.content.res.Configuration.ORIENTATION_PORTRAIT;target.set(portrait?android.content.res.Configuration.ORIENTATION_LANDSCAPE:android.content.res.Configuration.ORIENTATION_PORTRAIT);a.setRequestedOrientation(portrait?android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE:android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);});
+   AtomicBoolean changed=new AtomicBoolean();
+   for(int n=0;n<60;n++){scenario.onActivity(a->changed.set(a.getResources().getConfiguration().orientation==target.get()));if(changed.get())break;Thread.sleep(100);}
+   assertTrue("The emulator did not rotate",changed.get());
+   scenario.onActivity(a->assertSame("Rotation must not replace the editing WebView",original.get(),a.web));
+   assertEquals("true",js(scenario,"window.rotationDraft===true&&document.querySelector('#rotation-draft')?.value==='Unsubmitted draft'"));
+   js(scenario,"document.querySelector('#rotation-draft').remove()");
+   scenario.onActivity(a->a.setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED));
+  }
+ }
+
 }
