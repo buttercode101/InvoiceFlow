@@ -6,3 +6,4 @@ local.properties
 *.p12
 app/src/main/assets/web/
 asset-manifest.json
+emulator-evidence/

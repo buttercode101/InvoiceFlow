@@ -4,7 +4,7 @@ import android.app.*;import android.os.*;import android.content.*;import android
 import androidx.core.content.FileProvider;import androidx.webkit.*;
 import org.json.*;import java.io.*;import java.util.*;import java.util.concurrent.*;
 
-public class MainActivity extends Activity {
+public class MainActivity extends androidx.activity.ComponentActivity {
  protected WebView web;private LinearLayout root;private ProgressBar progress;private TextView failure;
  private ExportStore exports;private final ExecutorService files=Executors.newSingleThreadExecutor();
  private ValueCallback<Uri[]> chooser;private Uri cameraUri;private File saveFile;private String saveMime;
@@ -51,6 +51,7 @@ public class MainActivity extends Activity {
   });
   web.setDownloadListener((url,userAgent,disposition,mime,length)->{if(url.startsWith("blob:")||url.startsWith("data:")){web.evaluateJavascript("window.AndroidFiles&&AndroidFiles.exportUrl("+JSONObject.quote(url)+","+JSONObject.quote(URLUtil.guessFileName(url,disposition,mime))+","+JSONObject.quote(mime==null?"application/octet-stream":mime)+")",null);}else external(Uri.parse(url));});
   LinearLayout toolbar=new LinearLayout(this);toolbar.setGravity(Gravity.CENTER);addButton(toolbar,"Home",()->web.loadUrl(origin+"/"));addButton(toolbar,"Refresh",()->web.reload());if(BuildConfig.SCREEN_CAPTURE){addButton(toolbar,"Record screen",this::chooseRecording);addButton(toolbar,"Recordings",this::recordings);}root.addView(toolbar);
+  getOnBackPressedDispatcher().addCallback(this,new androidx.activity.OnBackPressedCallback(true){@Override public void handleOnBackPressed(){web.evaluateJavascript("typeof window.handleAndroidBack==='function'&&!!window.handleAndroidBack()",handled->{if("true".equals(handled))return;if(web.canGoBack())web.goBack();else{setEnabled(false);getOnBackPressedDispatcher().onBackPressed();setEnabled(true);}});}});
   if(state==null){String path="/";Uri deep=getIntent().getData();if(deep!=null&&OriginPolicy.trusted(deep.toString(),origin))path=deep.getEncodedPath()+(deep.getEncodedQuery()==null?"":"?"+deep.getEncodedQuery())+(deep.getEncodedFragment()==null?"":"#"+deep.getEncodedFragment());web.loadUrl(origin+path);}else web.restoreState(state);
  }
  private void post(JavaScriptReplyProxy reply,JSONObject data){runOnUiThread(()->{if(!isFinishing()&&web!=null&&OriginPolicy.trusted(web.getUrl(),origin))reply.postMessage(data.toString());});}
@@ -72,6 +73,5 @@ public class MainActivity extends Activity {
  protected void recordings(){showFailure("Native recordings are not included in this build.");}
  @Override protected void onActivityResult(int request,int result,Intent data){super.onActivityResult(request,result,data);if(request==PICK){if(result!=RESULT_OK||data==null){finishChooser(null);return;}ArrayList<Uri> uris=new ArrayList<>();if(data.getClipData()!=null)for(int n=0;n<data.getClipData().getItemCount();n++)uris.add(data.getClipData().getItemAt(n).getUri());else if(data.getData()!=null)uris.add(data.getData());finishChooser(uris.toArray(new Uri[0]));}else if(request==CAMERA)finishChooser(result==RESULT_OK&&cameraUri!=null?new Uri[]{cameraUri}:null);else if(request==SAVE&&result==RESULT_OK&&data!=null&&data.getData()!=null&&saveFile!=null){File source=saveFile;Uri destination=data.getData();files.execute(()->{try(InputStream in=new FileInputStream(source);OutputStream out=getContentResolver().openOutputStream(destination,"w")){if(out==null)throw new IOException();byte[] buffer=new byte[32768];for(int n;(n=in.read(buffer))!=-1;)out.write(buffer,0,n);runOnUiThread(()->Toast.makeText(this,"File saved",Toast.LENGTH_SHORT).show());}catch(IOException e){runOnUiThread(()->showFailure("The file could not be saved. Your app data is unchanged."));}});} }
  @Override protected void onSaveInstanceState(Bundle out){if(web!=null)web.saveState(out);super.onSaveInstanceState(out);}
- @Override public void onBackPressed(){if(web!=null&&web.canGoBack())web.goBack();else super.onBackPressed();}
  @Override protected void onDestroy(){if(chooser!=null)chooser.onReceiveValue(null);exports.abort();files.shutdown();if(web!=null){web.stopLoading();web.destroy();web=null;}super.onDestroy();}
 }
