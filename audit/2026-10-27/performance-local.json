@@ -1,0 +1,85 @@
+{
+  "scope": "unthrottled local Chromium only, not field Core Web Vitals",
+  "navigation": [
+    {
+      "name": "http://localhost:8742/",
+      "entryType": "navigation",
+      "startTime": 0,
+      "duration": 164.90000000002328,
+      "navigationId": 2657,
+      "initiatorType": "navigation",
+      "deliveryType": "",
+      "nextHopProtocol": "http/1.1",
+      "renderBlockingStatus": "non-blocking",
+      "contentType": "text/html",
+      "contentEncoding": "",
+      "workerStart": 0,
+      "workerRouterEvaluationStart": 0,
+      "workerCacheLookupStart": 0,
+      "workerMatchedSourceType": "",
+      "workerFinalSourceType": "",
+      "redirectStart": 0,
+      "redirectEnd": 0,
+      "fetchStart": 0.6999999999534339,
+      "domainLookupStart": 7.799999999930151,
+      "domainLookupEnd": 8.29999999993015,
+      "connectStart": 8.29999999993015,
+      "secureConnectionStart": 0,
+      "connectEnd": 8.79999999993015,
+      "requestStart": 9.29999999993015,
+      "responseStart": 17,
+      "firstInterimResponseStart": 0,
+      "finalResponseHeadersStart": 17,
+      "responseEnd": 33.59999999997672,
+      "transferSize": 1544,
+      "encodedBodySize": 1244,
+      "decodedBodySize": 1244,
+      "responseStatus": 200,
+      "serverTiming": [],
+      "unloadEventStart": 0,
+      "unloadEventEnd": 0,
+      "domInteractive": 57.199999999953434,
+      "domContentLoadedEventStart": 161.19999999995343,
+      "domContentLoadedEventEnd": 161.29999999993015,
+      "domComplete": 164.90000000002328,
+      "loadEventStart": 164.90000000002328,
+      "loadEventEnd": 164.90000000002328,
+      "type": "navigate",
+      "redirectCount": 0,
+      "activationStart": 0,
+      "criticalCHRestart": 0,
+      "notRestoredReasons": null,
+      "confidence": {
+        "randomizedTriggerRate": 0.4994798,
+        "value": "low"
+      }
+    }
+  ],
+  "resources": [
+    {
+      "name": "http://localhost:8742/style.css",
+      "duration": 35.199999999953434,
+      "bytes": 21786
+    },
+    {
+      "name": "http://localhost:8742/app.js",
+      "duration": 37.59999999997672,
+      "bytes": 89804
+    },
+    {
+      "name": "http://localhost:8742/core.js",
+      "duration": 25,
+      "bytes": 30430
+    },
+    {
+      "name": "http://localhost:8742/icon.svg",
+      "duration": 21.400000000023283,
+      "bytes": 559
+    },
+    {
+      "name": "http://localhost:8742/icon.svg",
+      "duration": 10.79999999993015,
+      "bytes": 0
+    }
+  ]
+}

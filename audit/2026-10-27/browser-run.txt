@@ -1,0 +1,81 @@
+{
+  "results": [
+    {
+      "name": "Business setup",
+      "status": "pass"
+    },
+    {
+      "name": "Customer setup",
+      "status": "pass"
+    },
+    {
+      "name": "Quote create, send, accept, convert",
+      "status": "pass"
+    },
+    {
+      "name": "Record payment and PDF export",
+      "status": "pass"
+    },
+    {
+      "name": "Expense persistence and backup",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 320x568",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 360x800",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 375x812",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 390x844",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 430x932",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 768x1024",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 1024x768",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 1280x800",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 1440x900",
+      "status": "pass"
+    },
+    {
+      "name": "Responsive 1920x1080",
+      "status": "pass"
+    },
+    {
+      "name": "All routes at 10 viewport sizes",
+      "status": "pass"
+    },
+    {
+      "name": "Mobile navigation labels do not overlap",
+      "status": "pass"
+    },
+    {
+      "name": "Mobile active navigation and keyboard table scrolling",
+      "status": "pass"
+    },
+    {
+      "name": "Offline returning-user persistence",
+      "status": "pass"
+    }
+  ],
+  "errors": []
+}
