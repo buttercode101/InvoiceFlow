@@ -1,0 +1,120 @@
+[
+  {
+    "route": "overview",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "nodes": [
+          {
+            "target": [
+              ".helper-card > p:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.43 (foreground color: #66736c, background color: #f0f3ef, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".helper-card > .form-note"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.43 (foreground color: #66736c, background color: #f0f3ef, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "invoices",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "quotes",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "collections",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "expenses",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "customers",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "items",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "reports",
+    "violations": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "nodes": [
+          {
+            "target": [
+              "p:nth-child(2)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.43 (foreground color: #66736c, background color: #f0f3ef, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".helper-card > p:nth-child(3)"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.43 (foreground color: #66736c, background color: #f0f3ef, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".helper-card > .mb-0"
+            ],
+            "summary": "Fix any of the following:\n  Element has insufficient color contrast of 4.43 (foreground color: #66736c, background color: #f0f3ef, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      }
+    ],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "settings",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  }
+]

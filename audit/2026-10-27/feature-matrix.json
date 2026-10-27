@@ -1,0 +1,170 @@
+[
+  {
+    "feature": "Business setup",
+    "status": "browser pass",
+    "evidence": "Business setup",
+    "limitation": "No backend; IndexedDB commit"
+  },
+  {
+    "feature": "Customers",
+    "status": "browser pass",
+    "evidence": "Customer setup",
+    "limitation": "Browser creation; edit/deletion not executed"
+  },
+  {
+    "feature": "Reusable items",
+    "status": "unit/source partial",
+    "evidence": "core.test.js",
+    "limitation": "Items page rendered; item UI not exercised"
+  },
+  {
+    "feature": "Quote create/share/accept",
+    "status": "browser pass",
+    "evidence": "Quote create, send, accept, convert",
+    "limitation": "Acceptance/share manually recorded, no delivery proof"
+  },
+  {
+    "feature": "Quote-to-invoice",
+    "status": "browser pass",
+    "evidence": "Quote create, send, accept, convert",
+    "limitation": "Idempotence additionally covered by unit test"
+  },
+  {
+    "feature": "Invoice creation/issue",
+    "status": "browser pass",
+    "evidence": "Quote create, send, accept, convert",
+    "limitation": "Converted draft and issued snapshot"
+  },
+  {
+    "feature": "Invoice line/tax/discount calculations",
+    "status": "unit pass",
+    "evidence": "core.test.js,roadmap.test.js",
+    "limitation": "Browser nonVAT total1000; detailed VAT unit coverage"
+  },
+  {
+    "feature": "PDF export",
+    "status": "browser pass",
+    "evidence": "Record payment and PDF export",
+    "limitation": "Actual downloaded PDF; unit pagination/font/credit tax"
+  },
+  {
+    "feature": "Print/share handoff",
+    "status": "not attempted",
+    "evidence": "none",
+    "limitation": "No external messages sent"
+  },
+  {
+    "feature": "Partial payment",
+    "status": "browser pass",
+    "evidence": "Record payment and PDF export",
+    "limitation": "User-recorded500 of1000; no bank settlement verification"
+  },
+  {
+    "feature": "Reversal/credit note",
+    "status": "unit pass",
+    "evidence": "core.test.js,roadmap.test.js",
+    "limitation": "Not full browser UI journey"
+  },
+  {
+    "feature": "Customer statement",
+    "status": "unit/source partial",
+    "evidence": "roadmap.test.js",
+    "limitation": "Statement UI/CSV not executed"
+  },
+  {
+    "feature": "Recurring schedules",
+    "status": "unit pass",
+    "evidence": "roadmap.test.js",
+    "limitation": "Schedule UI not executed"
+  },
+  {
+    "feature": "Bank CSV match",
+    "status": "unit pass",
+    "evidence": "roadmap.test.js",
+    "limitation": "Browser UI not executed; no bank API"
+  },
+  {
+    "feature": "Reminder/checkout links",
+    "status": "source partial",
+    "evidence": "core.js,app.js",
+    "limitation": "No automatic sending/payment API"
+  },
+  {
+    "feature": "Expense creation/persistence",
+    "status": "browser pass",
+    "evidence": "Expense persistence and backup",
+    "limitation": "Created100 expense, reloaded, observed saved record"
+  },
+  {
+    "feature": "Expense CSV/receipt attachments",
+    "status": "unit pass",
+    "evidence": "core.test.js,roadmap.test.js",
+    "limitation": "UI import/download not executed"
+  },
+  {
+    "feature": "Reports/ageing",
+    "status": "unit+render pass",
+    "evidence": "roadmap.test.js and route checks",
+    "limitation": "Date filters/CSV not full browser test"
+  },
+  {
+    "feature": "JSON backup export",
+    "status": "browser pass",
+    "evidence": "Expense persistence and backup",
+    "limitation": "Downloaded synthetic JSON backup"
+  },
+  {
+    "feature": "Backup restore/recovery",
+    "status": "unit pass",
+    "evidence": "core.test.js,workspace.test.js,audit-regressions.test.js",
+    "limitation": "Restore UI not executed"
+  },
+  {
+    "feature": "Encrypted backup",
+    "status": "unit pass",
+    "evidence": "roadmap.test.js",
+    "limitation": "Crypto auth/tamper tested; UI not executed"
+  },
+  {
+    "feature": "Multi business/demo isolation",
+    "status": "unit pass",
+    "evidence": "workspace.test.js",
+    "limitation": "UI switches not executed this pass"
+  },
+  {
+    "feature": "Offline return",
+    "status": "browser pass",
+    "evidence": "Offline returning-user persistence",
+    "limitation": "Service worker cache and invoice after offline reload"
+  },
+  {
+    "feature": "Install prompt",
+    "status": "source partial",
+    "evidence": "app.js,manifest.webmanifest",
+    "limitation": "Physical install not executed"
+  },
+  {
+    "feature": "Dark mode",
+    "status": "automated a11y partial",
+    "evidence": "accessibility-results.json",
+    "limitation": "3 routes tested; all variants not inspected"
+  },
+  {
+    "feature": "Responsive routes",
+    "status": "browser pass",
+    "evidence": "All routes at 10 viewport sizes",
+    "limitation": "90 combinations; no full modal/device keyboard coverage"
+  },
+  {
+    "feature": "Navigation/table keyboard",
+    "status": "browser pass",
+    "evidence": "Mobile active navigation and keyboard table scrolling",
+    "limitation": "Keyboard ArrowRight scroll/active nav visible"
+  },
+  {
+    "feature": "Android/Play release",
+    "status": "blocked",
+    "evidence": "android/release-gates.json",
+    "limitation": "Physical device and release gates pending"
+  }
+]

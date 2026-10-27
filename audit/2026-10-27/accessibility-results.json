@@ -1,0 +1,103 @@
+[
+  {
+    "route": "overview",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "invoices",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "quotes",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "collections",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "expenses",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "customers",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "items",
+    "violations": [],
+    "incomplete": [
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "reports",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "settings",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "overview dark",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "reports dark",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "settings dark",
+    "violations": [],
+    "incomplete": [
+      "color-contrast",
+      "label-content-name-mismatch"
+    ]
+  },
+  {
+    "route": "keyboard modal",
+    "focused": "customer-name",
+    "escapeDismisses": true,
+    "reducedMotion": "none"
+  }
+]

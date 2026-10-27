@@ -1,0 +1,30 @@
+{
+  "app": "InvoiceFlow ZA",
+  "date": "2026-10-27",
+  "verdict": "NOT YET VERIFIED READY",
+  "baselineCommit": "be32983ef025ec829fdb5ee7b25f2a8e901d5b5d",
+  "scope": "local source, Chromium emulation, synthetic IndexedDB data",
+  "sourceFixes": [
+    "IF-01",
+    "IF-02",
+    "IF-03",
+    "IF-04",
+    "IF-05",
+    "IF-06"
+  ],
+  "unit": {
+    "passed": 67,
+    "failed": 0,
+    "skipped": 0,
+    "junit": "unit-results.xml"
+  },
+  "browserResults": "browser-results.json",
+  "a11yResults": "accessibility-results.json",
+  "production": {
+    "currentBaselineDeployment": "dpl_6YHej1VSp9eQcLzRgyyM6vD3FQJS",
+    "changesDeployed": false,
+    "postChangeVerified": false
+  },
+  "physicalDeviceVerified": false,
+  "remaining": "report.md section H"
+}

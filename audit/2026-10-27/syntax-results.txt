@@ -1,0 +1,4 @@
+
+> invoiceflow-za@0.4.0 check
+> node --check dist/app.js && node --check dist/core.js && node --check dist/sw.js && node --check dist/pdf.js
+

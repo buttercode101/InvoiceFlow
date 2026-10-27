@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<testsuites>
+	<testcase name="restore rejects non-numeric quote numbers even when padded canonically" time="0.005411" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/audit-regressions.test.js"/>
+	<testcase name="credit PDF prints the original invoice cumulative tax allocation" time="0.392945" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/audit-regressions.test.js"/>
+	<testcase name="restore cannot override invoice calculations through export-only credit metadata" time="0.003656" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/audit-regressions.test.js"/>
+	<testcase name="strict rand parsing rejects negative, scientific and excess precision" time="0.001880" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="decimal quantities round each invoice line to nearest cent" time="0.000240" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="date validation rejects normalized invalid dates" time="0.001602" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="drafts excluded; sent then partial then fully paid with date-based income" time="0.003437" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="overdue uses remaining balance, due today is not overdue" time="0.000424" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="overpayment, zero, draft, future and pre-invoice payments are blocked" time="0.001376" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="invoice snapshots survive customer and business edits" time="0.000382" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="number sequence never reuses deleted draft number" time="0.000912" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="void removes unpaid balance and prevents payments" time="0.000273" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="invoice with any payment cannot be voided" time="0.000314" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="zero invoice, invalid date and quantity overflow fail" time="0.000316" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="future invoices may be drafted but cannot be marked sent" time="0.000295" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="CSV parses BOM, quoted comma, newline, escaped quotes and reordered headers" time="0.000649" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="malformed CSV, unknown categories, empty and future expenses fail" time="0.000527" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="CSV exports escape spreadsheet formulas and quoted fields" time="0.000359" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="duplicate fingerprint is stable regardless of ID and description case" time="0.000174" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="backup round-trip preserves totals and rejects duplicate IDs or corrupt amounts" time="0.002272" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="backup validation rejects unsupported version, non-VAT mismatch, overpayments and duplicate numbers" time="0.001287" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="cash net uses selected expense and payment dates, not invoiced amounts" time="0.000318" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="demo data is separate and fully validates" time="0.000822" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="backup rejects IDs that could escape an HTML attribute" time="0.000281" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="record IDs remain available when randomUUID is unavailable" time="0.001473" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="marking sent does not change details already printed or shared from draft" time="0.000264" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="reversing a mistaken entry preserves audit history and restores balance" time="0.006060" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="reversal requires an active payment and reason" time="0.000466" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="corrected entry can be re-recorded at correct amount without double-counting" time="0.000332" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="reversal metadata survives backup roundtrip and invalid metadata fails" time="0.000554" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="backup parsing rejects unrelated JSON, malformed and unsupported content" time="0.000410" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restoring an older backup preserves invoice-number high water and current revision" time="0.000576" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restoring invalid data leaves the target untouched" time="0.000389" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restore rejects issued future invoices and incomplete issued snapshots" time="0.001403" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restore rejects payment history on drafts even when every payment is reversed" time="0.000560" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restore rejects invoice zero and noncanonical number aliases" time="0.000796" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="restoring malformed business gives a useful validation error" time="0.001894" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="saved backup budget counts encoded bytes and remains restorable with Unicode" time="0.089167" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/core.test.js"/>
+	<testcase name="PDF is A4, contains embedded font and preserves accented title" time="0.333991" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="long PDF paginates 80 lines and does not mutate invoice records" time="0.370769" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="unsupported characters fail explicitly instead of silently losing invoice text" time="0.015674" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="offline worker returns cached navigation and module resources on network failure" time="0.004357" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="offline installer includes PDF modules, font and PWA icons" time="0.000884" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="worker leaves POST and third-party traffic untouched and removes only its old caches" time="0.000861" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/export.test.js"/>
+	<testcase name="VAT exclusive and inclusive use independently calculated cents after discount" time="0.008270" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="non-VAT businesses cannot charge VAT through creation or a backup" time="0.003903" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="VAT party numbers, discounts and deposit bounds are validated before saving" time="0.001698" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="quotes progress from draft to acceptance, convert once and retain frozen prices" time="0.003348" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="credit notes reduce unpaid balances without adding fictitious cash receipts" time="0.003388" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="duplicate credits and corrupt quote/schedule data are rejected on restore" time="0.003104" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="monthly billing preserves month-end anchor and generates distinct draft occurrences" time="0.001993" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="ageing buckets use remaining balance and due-today is not overdue" time="0.006455" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="restoring legacy data retains quote and credit number high-water marks" time="0.000423" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="zero and exempt VAT treatments preserve values and do not collect VAT" time="0.000480" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="PDF exporter supports VAT, quote, receipt and credit document variants" time="0.542609" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="encrypted backups authenticate password and contents; old JSON stays supported" time="0.242927" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="bank matching records selected receipts once and rejects duplicate reimports" time="0.001571" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="credit VAT allocation is cumulative so split credits never over-credit the original tax" time="0.000570" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="expense receipt attachments survive backup without changing financial totals" time="0.000614" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="receipt validation rejects mismatched file signatures, oversized data and unsafe formats" time="0.001031" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/roadmap.test.js"/>
+	<testcase name="workspace switching keeps current records until the new workspace is validated" time="0.020687" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="writes and repeated switches are blocked while a workspace read is pending" time="0.007430" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="failed or malformed workspace reads retain the previous workspace and release the lock" time="0.008288" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="backup-size failure leaves workspace records and revision unchanged" time="0.070829" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="outdated tab save aborts without replacing in-memory records" time="0.003951" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="failed storage transaction preserves workspace and recovery checkpoint" time="0.002105" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<testcase name="successful checkpoint transaction saves prior and new records atomically" time="0.002604" classname="test" file="/workspace/scratch/49d3e6c85340/invoiceflow-audit/tests/workspace.test.js"/>
+	<!-- tests 67 -->
+	<!-- suites 0 -->
+	<!-- pass 67 -->
+	<!-- fail 0 -->
+	<!-- cancelled 0 -->
+	<!-- skipped 0 -->
+	<!-- todo 0 -->
+	<!-- duration_ms 1011.754132 -->
+</testsuites>
