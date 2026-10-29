@@ -1,3 +1,5 @@
+![CI](https://github.com/buttercode101/InvoiceFlow/actions/workflows/verify.yml/badge.svg)
+
 # InvoiceFlow ZA
 
 **Send the invoice. Track what is owed. Spend less time on admin.**
