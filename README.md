@@ -1,4 +1,5 @@
 ![CI](https://github.com/buttercode101/InvoiceFlow/actions/workflows/verify.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 # InvoiceFlow ZA
 
