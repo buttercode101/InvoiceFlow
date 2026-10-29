@@ -1,7 +1,10 @@
-# Security reporting
+# Security Policy
 
-Report vulnerabilities privately through the repository's Security → Advisories → Report a vulnerability option when available. If private reporting is unavailable, contact the repository owner through a private channel you already use; do not disclose exploit details in a public issue. No dedicated security email or response-time guarantee is published here.
+We take security seriously. If you discover a vulnerability in any of our repositories, please follow these steps:
 
-Include the affected commit, impact, minimal reproduction and sanitised evidence. Do not send live secrets, owner capabilities, payment references, private documents, recordings or customer records. Test with disposable local fixtures and avoid accessing other people's data.
+1. **Do not** publicly disclose the issue.
+2. Send a detailed report to **security@buttercode101.com** (or open a private issue if you prefer).
+3. Include steps to reproduce, the impact, and any suggested fixes.
+4. We will acknowledge receipt within 48 hours and aim to resolve the issue promptly.
 
-Revoke exposed credentials through the relevant provider. Removing a credential from a commit does not revoke it. Dependency and source checks are recorded in [repository verification](REPOSITORY-VERIFICATION.md); they are not a guarantee that every vulnerability has been found.
+Our goal is to keep all projects safe for users and contributors.
