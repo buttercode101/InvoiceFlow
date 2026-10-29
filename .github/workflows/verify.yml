@@ -12,8 +12,10 @@ jobs:
         with:
           persist-credentials: false
       - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020
-      - run: npm audit --audit-level=high
-        with:
+      - name: Install lint dependencies
+        run: npm install -D eslint prettier
+      - name: Run lint
+        run: npx eslint . --max-warnings=0
           node-version: '24'
       - run: npm test
       - run: npm run check
