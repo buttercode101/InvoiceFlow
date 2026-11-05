@@ -6,7 +6,8 @@
   "scripts": {
     "test": "c8 --reporter=text --reporter=html --reporter=lcov vitest run",
     "test:ui": "vitest run tests/ui/**/*.test.js",
-    "test:product": "npm test && npm run test:ui"
+    "test:product": "npm test && npm run test:ui",
+    "check": "for f in dist/*.js src/lib/*.js; do node --check \"$f\"; done"
   },
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5"
