@@ -59,3 +59,13 @@ The complete application is now present in [buttercode101/InvoiceFlow](https://g
 - [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md)
 
 Current source version: **0.4.0**. Tax fields are aids, not SARS verification or tax advice.
+
+## Source layout note
+
+`dist/` is the deployable source tree, not generated build output: there is
+no bundler or build step. `dist/core.js` (domain logic, imported directly by
+`tests/`), `dist/app.js` (UI) and `dist/pdf.js` are hand-maintained ES
+modules served as-is by any static host and copied verbatim into the Android
+assets by `android/prepare.mjs`. `src/lib/validation.js` is the only file
+outside `dist/` (used by the vitest UI tests). If you add a build step later,
+update `tests/` imports, `sw.js` precache and `android/prepare.mjs` together.
