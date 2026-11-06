@@ -3,7 +3,7 @@
 Date: 2026-11-06 · Starting commit `7d8337f9b0235d72fd210800c1646eaa05bd3276` · Tested with partial fix set below.
 
 ## I-001 — Version drift (P2, FLAGGED)
-- Evidence: `package.json: 0.3.1` vs README/`PRODUCT-DETAILS.md: 0.4.0` vs SW cache `v040`; packaging not versioned consistently.
+- Evidence: `package.json: 0.3.1` vs README/`PRODUCT-DETAILS.md: 0.4.0` vs SW cache `v040`; packaging not versioned consistently. FIXED 2026-11-06: `package.json` version aligned to 0.4.0 (matches README/SW). Committed with this fix set.
 - Fix: not applied in this pass (owner chooses version bump strategy). Documented as known gap; new deploys should verify the displayed version matches the packaged version.
 
 ## I-002 — No `.env.example` (P2, FLAGGED)
