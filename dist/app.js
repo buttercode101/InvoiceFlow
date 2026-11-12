@@ -147,18 +147,27 @@ function openCopilot() {
     if (!text.trim()) throw Error('Describe the work first.');
     const parsed = parseCommand(text, state);
     if (!parsed.client && !parsed.lines.length) throw Error('Could not extract client or amount. Try including a name and an amount.');
-    // Create draft
-    const customer = state.customers.find(c => c.name.toLowerCase().includes(parsed.client.toLowerCase())) || { id: id(), name: parsed.client || 'New client', email: '' };
-    if (!state.customers.find(c => c.id === customer.id)) state.customers.push(customer);
-    const due = addDays(today(), parsed.dueDays || 14);
-    const draft = createInvoice(state, { customer, lines: parsed.lines.length ? parsed.lines : [{ description: 'Services', qty: 1, price: 0 }], due, notes: 'Created via co-pilot' });
-    if (parsed.type === 'quote') {
-      // Convert to quote style if needed
-      draft.kind = 'quote';
-    }
-    await commit(s => { s.invoices.push(draft); });
+    await commit(s => {
+      let customer = s.customers.find(c => c.name.toLowerCase().includes((parsed.client||'').toLowerCase()));
+      if (!customer) {
+        customer = { id: id(), name: parsed.client || 'New client', email: '', address: '' };
+        s.customers.push(customer);
+      }
+      const due = addDays(today(), parsed.dueDays || 14);
+      const lines = (parsed.lines.length ? parsed.lines : [{ description: 'Services', price: 0 }]).map(l => ({
+        description: l.description || 'Services',
+        quantity: 100,
+        price: l.price || 0
+      }));
+      createInvoice(s, {
+        customerId: customer.id,
+        date: today(),
+        due,
+        lines,
+        notes: ''
+      });
+    });
     modal.close();
-    route = { page: 'editor', id: draft.id };
     render();
     toast('Draft created. Review and adjust before issuing.');
   }, 'Create draft');
