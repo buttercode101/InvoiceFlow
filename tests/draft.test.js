@@ -64,6 +64,23 @@ test('parses quantity at a unit rate and amount-times-quantity', () => {
   assert.equal(b.lines[0].quantity, 300);
 });
 
+test('parses the app’s own money format (space thousands, comma decimals)', () => {
+  // The app renders amounts as "R 4 500,00"; the co-pilot example tells users to
+  // type exactly that, so the parser must not read it as R4.00.
+  const formats = [
+    'Invoice Northline Studio for logo design R 4 500,00 due in 14 days',
+    'Invoice Northline Studio for logo design R 4 500 due in 14 days',
+    'Invoice Northline Studio for logo design R4,500 due in 14 days',
+    'Invoice Northline Studio for logo design R4500.00 due in 14 days',
+    'Invoice Northline Studio for logo design 4500 ZAR due in 14 days'
+  ];
+  for (const text of formats) {
+    const d = parseDraft(text, workspace());
+    assert.equal(d.lines[0].price, 450000, text);
+    assert.equal(d.lines[0].quantity, 100, text);
+  }
+});
+
 test('detects VAT treatment wording without changing deterministic amounts', () => {
   assert.equal(parseDraft('Invoice Northline Studio for work R1,000 including VAT', workspace()).vatMode, 'inclusive');
   assert.equal(parseDraft('Invoice Northline Studio for work R1,000 excluding VAT', workspace()).vatMode, 'exclusive');

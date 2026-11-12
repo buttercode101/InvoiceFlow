@@ -5,14 +5,24 @@ import { addDays, today } from './core.js';
 
 const DOC_WORDS = /\b(invoice|invoices|quote|quotes|quotation|bill|billing)\b/i;
 const MONEY_RE = /(?<![A-Za-z])R\s*(\d[\d,]*(?:\.\d{1,2})?)|(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ZAR\b|rand(?:s)?\b)/i;
-const MONEY_GLOBAL = /(?<![A-Za-z])R\s*(\d[\d,]*(?:\.\d{1,2})?)|(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ZAR\b|rand(?:s)?\b)/gi;
+const MONEY_GLOBAL = /(?<![A-Za-z])R\s*(\d[\d, ]*(?:\.\d{1,2})?)|(\d[\d, ]*(?:\.\d{1,2})?)\s*(?:ZAR\b|rand(?:s)?\b)/gi;
 const DUE_DAYS = /\bdue(?:\s+in)?\s+(\d{1,4})\s*days?\b/i;
 const VALID_DAYS = /\bvalid(?:\s+for)?\s+(\d{1,4})\s*days?\b/i;
 const QTY_AT = /(\d+(?:\.\d+)?)\s*(?:hours?|hrs?|h|units?|pcs?|pieces?|days?|sessions?|consultations?|retainers?|months?|weeks?)?\s*(?:at|@|×|x)\s*(?:R\s*)?(\d[\d,]*(?:\.\d{1,2})?)/i;
 const AT_QTY = /(?:R\s*)?(\d[\d,]*(?:\.\d{1,2})?)\s*(?:x|×)\s*(\d+(?:\.\d+)?)/i;
 
 function toCents(raw) {
-  const n = Number(String(raw).replaceAll(',', ''));
+  // The app renders money as "R 4 500,00" (space thousands, comma decimals).
+  // Accept that as well as "R4,500" and "R4500.00" without guessing wrong.
+  let s = String(raw).replace(/\s/g, '');
+  const lastComma = s.lastIndexOf(',');
+  const lastDot = s.lastIndexOf('.');
+  if (lastComma > lastDot && /,\d{1,2}$/.test(s)) {
+    s = s.slice(0, lastComma).replaceAll(',', '').replaceAll('.', '') + '.' + s.slice(lastComma + 1);
+  } else {
+    s = s.replaceAll(',', '');
+  }
+  const n = Number(s);
   if (!Number.isFinite(n) || n <= 0) return null;
   const c = Math.round(n * 100);
   return Number.isSafeInteger(c) && c > 0 ? c : null;

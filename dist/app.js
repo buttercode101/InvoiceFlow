@@ -552,8 +552,11 @@ function openCopilot(){
             parsed = parseDraft(text,{customers:ctx.customers,items:ctx.items,business:ctx.business});
             copilotByokSet(false,'');
           }
-          const normalised = normaliseDraft(parsed,{customers:ctx.customers,items:ctx.items,business:ctx.business});
-          parsedDraft = normalised;
+          // parseDraft already returns the local (cents/hundredths) shape;
+          // normaliseDraft is for AI-supplied decimal output and would double-convert.
+          parsedDraft = useByok
+            ? normaliseDraft(parsed,{customers:ctx.customers,items:ctx.items,business:ctx.business})
+            : parsed;
           phase='review';parseError=null;renderModal();
         }catch(err){
           parseError = err.message||'Could not parse that.';
