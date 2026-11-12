@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {emptyState,today,addDays,createInvoice,issueInvoice,recordPayment,reversePayment,parseCommand,clientScore,cashFlowForecast} from '../dist/core.js';
+import {emptyState,today,addDays,createInvoice,issueInvoice,recordPayment,reversePayment,parseCommand,clientScore,cashFlowForecast,saveQuote,setQuoteState,convertQuote} from '../dist/core.js';
 
 function workspace(){
   const s=emptyState();
@@ -63,4 +63,32 @@ test('client scoring classifies two active timely receipts as excellent',()=>{
   assert.equal(score.count,2);
   assert.equal(score.avgDays,10);
   assert.equal(score.reliability,'excellent');
+});
+
+test('co-pilot invoice draft can be reviewed, issued and paid end to end',()=>{
+  const s=workspace();
+  const parsed=parseCommand('Invoice Northline Studio for logo design R4,500 due in 14 days',s);
+  const invoiceId=createInvoice(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.qty,price:l.price})),notes:''});
+  const draft=s.invoices.find(i=>i.id===invoiceId);
+  assert.equal(draft.state,'draft');
+  assert.equal(draft.lines[0].description,'logo design');
+  assert.equal(draft.lines[0].price,450000);
+  issueInvoice(s,invoiceId);
+  recordPayment(s,invoiceId,{amount:450000,date:today(),reference:'EFT'});
+  assert.equal(s.invoices[0].state,'issued');
+  assert.equal(s.invoices[0].payments[0].amount,450000);
+});
+
+test('co-pilot quotation draft can be reviewed, accepted, converted, issued and paid',()=>{
+  const s=workspace();
+  const parsed=parseCommand('Quote Northline Studio for monthly retainer R8,000 due in 21 days',s);
+  const quoteId=saveQuote(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.qty,price:l.price})),notes:''});
+  assert.equal(s.quotes[0].state,'draft');
+  setQuoteState(s,quoteId,'sent');
+  setQuoteState(s,quoteId,'accepted');
+  const invoiceId=convertQuote(s,quoteId);
+  issueInvoice(s,invoiceId);
+  recordPayment(s,invoiceId,{amount:800000,date:today(),reference:'EFT'});
+  assert.equal(s.invoices[0].state,'issued');
+  assert.equal(s.invoices[0].payments[0].amount,800000);
 });
