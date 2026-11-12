@@ -154,15 +154,19 @@ export function parseCommand(text, state) {
   if (typeof text !== 'string' || !text.trim() || text.length > 2000) throw Error('Describe the work in 2,000 characters or fewer.');
   const raw = text.trim();
   const result = { type: /\bquote\b/i.test(raw) ? 'quote' : 'invoice', client: '', lines: [], dueDays: 14, notes: '' };
-  // A client is the phrase after "for/to" and before the work description or amount.
-  const clientMatch = raw.match(/\b(?:for|to)\s+(.+?)(?=\s+for\b|\s+at\b|\s+due\b|\s+R\s*\d|$)/i);
-  if (clientMatch) result.client = clientMatch[1].trim().replace(/[.,;]+$/, '');
+  // Prefer the explicit document → client → work description pattern.
+  const structured = raw.match(/\b(?:invoice|quote)\s+(?:(?:for|to)\s+)?(.+?)\s+for\s+(.+?)(?=\s+R\s*\d|\s+due\b|$)/i);
+  if (structured) result.client = structured[1].trim().replace(/[.,;]+$/, '');
+  else {
+    const clientMatch = raw.match(/\b(?:for|to)\s+(.+?)(?=\s+at\b|\s+due\b|\s+R\s*\d|$)/i);
+    if (clientMatch) result.client = clientMatch[1].trim().replace(/[.,;]+$/, '');
+  }
   const amountMatch = raw.match(/\bR\s*(\d[\d,]*(?:\.\d{1,2})?)/i) || raw.match(/\b(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ZAR|rand(?:s)?)\b/i);
   if (amountMatch) {
     const amount = Number(amountMatch[1].replaceAll(',', ''));
     if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(Math.round(amount * 100))) throw Error('Enter a valid positive amount in rand.');
-    const afterClient = clientMatch ? raw.slice(clientMatch.index + clientMatch[0].length) : raw;
-    const descriptionMatch = afterClient.match(/\bfor\s+(.+?)(?=\s+R\s*\d|\s+due\b|$)/i);
+    const afterClient = structured ? '' : raw.slice((raw.match(/\b(?:for|to)\s+/i)?.index || 0));
+    const descriptionMatch = structured ? [null, structured[2]] : afterClient.match(/\bfor\s+(.+?)(?=\s+R\s*\d|\s+due\b|$)/i);
     const description = descriptionMatch?.[1]?.trim().replace(/[.,;]+$/, '') || 'Services';
     result.lines.push({ description, qty: 100, price: Math.round(amount * 100) });
   }
