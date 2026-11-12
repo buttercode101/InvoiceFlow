@@ -148,3 +148,43 @@ export function cashFlowForecast(state, weeks = 13, scenarios = {}) {
     safeToSpend: Math.max(0, running * 0.6) // conservative
   };
 }
+
+// Simple local command parser for AI co-pilot (no external dependency)
+export function parseCommand(text, state) {
+  const t = text.toLowerCase().trim();
+  const result = { type: 'invoice', client: '', lines: [], dueDays: 14, notes: '' };
+  // Extract client name (after "for" or "to")
+  const clientMatch = t.match(/(?:for|to)\s+([a-z0-9 &]+?)(?:\s+(?:for|at|due|plus|and)|$)/i);
+  if (clientMatch) result.client = clientMatch[1].trim();
+  // Extract amount
+  const amountMatch = t.match(/r?\s*(\d+(?:[.,]\d+)?)/i);
+  if (amountMatch) {
+    const amt = Math.round(parseFloat(amountMatch[1].replace(',', '.')) * 100);
+    result.lines.push({ description: 'Services', qty: 1, price: amt });
+  }
+  // Due days
+  const dueMatch = t.match(/(\d+)\s*days?/i);
+  if (dueMatch) result.dueDays = parseInt(dueMatch[1], 10);
+  // Quote detection
+  if (t.includes('quote')) result.type = 'quote';
+  return result;
+}
+
+// Client payment behaviour
+export function clientScore(state, customerId) {
+  const invoices = (state.invoices || []).filter(i => i.customer?.id === customerId && i.state === 'issued');
+  if (!invoices.length) return { avgDays: null, reliability: 'new', count: 0 };
+  let totalDays = 0, paid = 0;
+  for (const inv of invoices) {
+    const p = (inv.payments || []).find(p => p.amount > 0);
+    if (p && inv.date) {
+      const days = Math.round((new Date(p.date) - new Date(inv.date)) / 86400000);
+      totalDays += Math.max(0, days);
+      paid++;
+    }
+  }
+  const avg = paid ? Math.round(totalDays / paid) : null;
+  let reliability = 'new';
+  if (paid >= 2) reliability = avg <= 14 ? 'excellent' : avg <= 30 ? 'good' : 'slow';
+  return { avgDays: avg, reliability, count: invoices.length };
+}
