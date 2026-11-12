@@ -23,7 +23,7 @@ test('co-pilot parses a quote, client, service description, amount and due days'
   const parsed=parseCommand('Quote Northline Studio for monthly design retainer R8,000 due in 21 days',workspace());
   assert.equal(parsed.type,'quote');
   assert.equal(parsed.client,'Northline Studio');
-  assert.deepEqual(parsed.lines,[{description:'monthly design retainer',qty:100,price:800000}]);
+  assert.deepEqual(parsed.lines,[{description:'monthly design retainer',quantity:100,price:800000}]);
   assert.equal(parsed.dueDays,21);
 });
 
@@ -31,7 +31,7 @@ test('co-pilot parses invoice amount and defaults safely when due date is omitte
   const parsed=parseCommand('Invoice for Northline Studio for logo design R4,500',workspace());
   assert.equal(parsed.type,'invoice');
   assert.equal(parsed.client,'Northline Studio');
-  assert.deepEqual(parsed.lines,[{description:'logo design',qty:100,price:450000}]);
+  assert.deepEqual(parsed.lines,[{description:'logo design',quantity:100,price:450000}]);
   assert.equal(parsed.dueDays,14);
 });
 
@@ -68,7 +68,7 @@ test('client scoring classifies two active timely receipts as excellent',()=>{
 test('co-pilot invoice draft can be reviewed, issued and paid end to end',()=>{
   const s=workspace();
   const parsed=parseCommand('Invoice Northline Studio for logo design R4,500 due in 14 days',s);
-  const invoiceId=createInvoice(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.qty,price:l.price})),notes:''});
+  const invoiceId=createInvoice(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.quantity,price:l.price})),notes:''});
   const draft=s.invoices.find(i=>i.id===invoiceId);
   assert.equal(draft.state,'draft');
   assert.equal(draft.lines[0].description,'logo design');
@@ -82,7 +82,7 @@ test('co-pilot invoice draft can be reviewed, issued and paid end to end',()=>{
 test('co-pilot quotation draft can be reviewed, accepted, converted, issued and paid',()=>{
   const s=workspace();
   const parsed=parseCommand('Quote Northline Studio for monthly retainer R8,000 due in 21 days',s);
-  const quoteId=saveQuote(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.qty,price:l.price})),notes:''});
+  const quoteId=saveQuote(s,{customerId:'client-1',date:today(),due:addDays(today(),parsed.dueDays),lines:parsed.lines.map(l=>({description:l.description,quantity:l.quantity,price:l.price})),notes:''});
   assert.equal(s.quotes[0].state,'draft');
   setQuoteState(s,quoteId,'sent');
   setQuoteState(s,quoteId,'accepted');
