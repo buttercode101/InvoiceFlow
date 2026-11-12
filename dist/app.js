@@ -154,22 +154,19 @@ function openCopilot() {
         s.customers.push(customer);
       }
       const due = addDays(today(), parsed.dueDays || 14);
-      const lines = (parsed.lines.length ? parsed.lines : [{ description: 'Services', price: 0 }]).map(l => ({
+      if (!parsed.lines.length || parsed.lines.some(l => !Number.isSafeInteger(l.price) || l.price <= 0)) throw Error('Include a positive amount in rand, for example R4,500.');
+      const lines = parsed.lines.map(l => ({
         description: l.description || 'Services',
-        quantity: 100,
-        price: l.price || 0
+        quantity: l.qty || 100,
+        price: l.price
       }));
-      createInvoice(s, {
-        customerId: customer.id,
-        date: today(),
-        due,
-        lines,
-        notes: ''
-      });
+      const document = { customerId: customer.id, date: today(), due, lines, notes: '' };
+      if (parsed.type === 'quote') saveQuote(s, document);
+      else createInvoice(s, document);
     });
     modal.close();
     render();
-    toast('Draft created. Review and adjust before issuing.');
+    toast(parsed.type === 'quote' ? 'Quote draft created. Review it before sending.' : 'Invoice draft created. Review it before issuing.');
   }, 'Create draft');
 }
 
