@@ -86,3 +86,65 @@ function ratioRound(a,b,d){return Number((BigInt(a)*BigInt(b)*2n+BigInt(d))/(Big
 export function creditTax(i,creditId){let previous=0;for(const c of i.credits||[]){const vat=ratioRound(previous+c.amount,breakdown(i).vat,total(i))-ratioRound(previous,breakdown(i).vat,total(i));if(c.id===creditId)return {subtotal:c.amount,discount:0,net:c.amount-vat,vat,total:c.amount};previous+=c.amount}throw Error('Credit note not found.')}
 
 export function validateReceipt(r){if(!r||typeof r.name!=='string'||!r.name.trim()||r.name.length>150||!['image/png','image/jpeg','application/pdf'].includes(r.type)||typeof r.data!=='string'||r.data.length>666668||!/^[A-Za-z0-9+/]*={0,2}$/.test(r.data))throw Error('Invalid receipt attachment. Use a PNG, JPEG or PDF up to 500 KB.');let bytes;try{bytes=Uint8Array.from(atob(r.data),x=>x.charCodeAt(0))}catch{throw Error('Invalid receipt attachment.')}if(!bytes.length||bytes.length>500000)throw Error('Receipt exceeds 500 KB.');const valid=r.type==='image/png'?[137,80,78,71,13,10,26,10].every((v,n)=>bytes[n]===v):r.type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:[37,80,68,70,45].every((v,n)=>bytes[n]===v);if(!valid)throw Error('Receipt content does not match its file type.');return r}
+
+// Predictive cash flow (13-week rolling)
+export function cashFlowForecast(state, weeks = 13, scenarios = {}) {
+  const start = new Date();
+  start.setHours(0,0,0,0);
+  const buckets = Array.from({length: weeks}, (_, i) => {
+    const d = new Date(start);
+    d.setDate(d.getDate() + i * 7);
+    return { week: i + 1, start: d.toISOString().slice(0,10), inflows: 0, outflows: 0, net: 0, balance: 0 };
+  });
+
+  const todayStr = start.toISOString().slice(0,10);
+
+  // Open invoices as expected inflows (use due date, or today if overdue)
+  for (const inv of (state.invoices || [])) {
+    if (inv.state !== 'issued') continue;
+    const bal = balance(inv);
+    if (bal <= 0) continue;
+    let due = inv.due || todayStr;
+    if (due < todayStr) due = todayStr;
+    const weekIndex = Math.min(Math.floor((new Date(due) - start) / (7*86400000)), weeks - 1);
+    if (weekIndex >= 0) buckets[weekIndex].inflows += bal;
+  }
+
+  // Recurring (simple: treat as monthly on same day)
+  for (const rec of (state.recurring || [])) {
+    if (rec.paused) continue;
+    // Approximate next 3 months
+    for (let m = 0; m < 4; m++) {
+      const d = new Date(start);
+      d.setMonth(d.getMonth() + m);
+      if (rec.day) d.setDate(Math.min(rec.day, 28));
+      const ds = d.toISOString().slice(0,10);
+      if (ds < todayStr) continue;
+      const weekIndex = Math.min(Math.floor((d - start) / (7*86400000)), weeks - 1);
+      if (weekIndex >= 0 && weekIndex < weeks) {
+        buckets[weekIndex].inflows += rec.amount || 0;
+      }
+    }
+  }
+
+  // Expenses (recent average monthly / 4 for weekly)
+  const recentExpenses = (state.expenses || []).filter(e => e.date >= addDays(todayStr, -90));
+  const avgWeeklyExpense = recentExpenses.reduce((a, e) => a + (e.amount || 0), 0) / Math.max(1, Math.ceil(recentExpenses.length / 4) || 13);
+  for (const b of buckets) b.outflows += Math.round(avgWeeklyExpense);
+
+  // Running balance
+  let running = 0;
+  for (const b of buckets) {
+    b.net = b.inflows - b.outflows;
+    running += b.net;
+    b.balance = running;
+  }
+
+  return {
+    weeks: buckets,
+    totalIn: buckets.reduce((a,b) => a + b.inflows, 0),
+    totalOut: buckets.reduce((a,b) => a + b.outflows, 0),
+    endingBalance: running,
+    safeToSpend: Math.max(0, running * 0.6) // conservative
+  };
+}
