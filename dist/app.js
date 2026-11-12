@@ -359,9 +359,9 @@ function coPilotModalHTML(phase,rawInput,parsedDraft,parseError,isParsing,ctx,vo
             <tbody id="copilot-lines-body">
               ${parsedDraft.lines.map((l,i)=>`<tr data-line="${i}">
                 <td><input type="text" class="copilot-line-desc" data-field="description" value="${esc(l.description)}" maxlength="300"></td>
-                <td class="num"><input type="number" class="copilot-line-qty" data-field="quantity" step="0.01" min="0.01" value="${decimal(l.quantity/100)}" style="width:70px"></td>
-                <td class="num"><input type="number" class="copilot-line-price" data-field="price" step="0.01" min="0" value="${decimal(l.price/100)}" style="width:100px"></td>
-                <td class="num"><strong>${money(l.quantity*l.price/10000)}</strong></td>
+                <td class="num"><input type="number" class="copilot-line-qty" data-field="quantity" step="0.01" min="0.01" value="${decimal(l.quantity)}" style="width:70px"></td>
+                <td class="num"><input type="number" class="copilot-line-price" data-field="price" step="0.01" min="0" value="${decimal(l.price)}" style="width:100px"></td>
+                <td class="num"><strong>${money(lineTotal(l))}</strong></td>
                 <td><button type="button" class="icon-btn small" data-action="copilot-remove-line" data-line="${i}" aria-label="Remove line">${icon('close')}</button></td>
               </tr>`).join('')||`<tr><td colspan="5" class="muted">No line items parsed yet. Add one below.</td></tr>`}
             </tbody>

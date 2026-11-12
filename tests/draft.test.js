@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { parseDraft, normaliseDraft, draftContext } from '../dist/draft.js';
-import { emptyState, id, today, addDays } from '../dist/core.js';
+import { emptyState, id, today, addDays, lineTotal } from '../dist/core.js';
 
 function workspace() {
   const s = emptyState();
@@ -129,6 +129,20 @@ test('normaliseDraft coerces unsafe AI output into the local shape', () => {
   assert.equal(out.vatMode, null);
   assert.equal(out.notes, '42');
   assert.ok(out.warnings.some(w => /no valid price/.test(w)));
+});
+
+test('co-pilot review units round-trip without double division', () => {
+  // Regression: the review template divided by 100 twice (decimal(l.quantity/100)),
+  // so an AI draft of qty 1 / R4500 rendered as 0.01 / R45.00 and saved 100x too small.
+  const decimal = n => (n / 100).toFixed(2);
+  const out = normaliseDraft({
+    type: 'invoice', client: 'Salt & Stone Café',
+    lines: [{ description: 'Logo design', quantity: 1, price: 4500 }]
+  }, workspace());
+  const l = out.lines[0];
+  assert.equal(decimal(l.quantity), '1.00', 'quantity must render as 1.00, not 0.01');
+  assert.equal(decimal(l.price), '4500.00', 'price must render as 4500.00, not 45.00');
+  assert.equal(lineTotal(l), 450000, 'line total must be R4500.00 in cents');
 });
 
 test('draftContext summarises customers, items and recent invoice lines', () => {
