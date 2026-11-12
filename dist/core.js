@@ -88,65 +88,102 @@ export function creditTax(i,creditId){let previous=0;for(const c of i.credits||[
 export function validateReceipt(r){if(!r||typeof r.name!=='string'||!r.name.trim()||r.name.length>150||!['image/png','image/jpeg','application/pdf'].includes(r.type)||typeof r.data!=='string'||r.data.length>666668||!/^[A-Za-z0-9+/]*={0,2}$/.test(r.data))throw Error('Invalid receipt attachment. Use a PNG, JPEG or PDF up to 500 KB.');let bytes;try{bytes=Uint8Array.from(atob(r.data),x=>x.charCodeAt(0))}catch{throw Error('Invalid receipt attachment.')}if(!bytes.length||bytes.length>500000)throw Error('Receipt exceeds 500 KB.');const valid=r.type==='image/png'?[137,80,78,71,13,10,26,10].every((v,n)=>bytes[n]===v):r.type==='image/jpeg'?bytes[0]===255&&bytes[1]===216&&bytes[2]===255:[37,80,68,70,45].every((v,n)=>bytes[n]===v);if(!valid)throw Error('Receipt content does not match its file type.');return r}
 
 // Predictive cash flow (13-week rolling)
+const RUN_RATE_WEEKS = 13;
+function localISO(d){const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}`}
+
 export function cashFlowForecast(state, weeks = 13, scenarios = {}) {
-  const start = new Date();
-  start.setHours(0,0,0,0);
+  const todayStr = today();
+  const start = new Date(todayStr + 'T00:00:00');
   const buckets = Array.from({length: weeks}, (_, i) => {
-    const d = new Date(start);
-    d.setDate(d.getDate() + i * 7);
-    return { week: i + 1, start: d.toISOString().slice(0,10), inflows: 0, outflows: 0, net: 0, balance: 0 };
+    const d = new Date(start); d.setDate(d.getDate() + i * 7);
+    return { week: i + 1, start: localISO(d), inflows: 0, outflows: 0, net: 0, balance: 0 };
   });
+  const endStr = localISO(new Date(start.getTime() + weeks * 7 * 86400000));
+  const weekOf = (dateStr) => {
+    const t = Date.parse(dateStr + 'T00:00:00'), s = Date.parse(todayStr + 'T00:00:00');
+    const idx = Math.floor((t - s) / 604800000);
+    return idx >= 0 && idx < weeks ? idx : -1;
+  };
 
-  const todayStr = start.toISOString().slice(0,10);
+  // Scenario knobs (all optional, additive, deterministic)
+  const latePaymentDays = Math.max(0, Number(scenarios.latePaymentDays) || 0);
+  const newJobAmount = Math.max(0, Number(scenarios.newJobAmount) || 0);
+  const newJobWeek = Math.max(1, Math.min(weeks, Number(scenarios.newJobWeek) || 0));
+  const extraExpenseAmount = Math.max(0, Number(scenarios.extraExpenseAmount) || 0);
+  const extraExpenseWeek = Math.max(1, Math.min(weeks, Number(scenarios.extraExpenseWeek) || 0));
 
-  // Open invoices as expected inflows (use due date, or today if overdue)
+  // Open invoices: the remaining balance is the expected inflow, dated by due date
   for (const inv of (state.invoices || [])) {
     if (inv.state !== 'issued') continue;
     const bal = balance(inv);
     if (bal <= 0) continue;
     let due = inv.due || todayStr;
     if (due < todayStr) due = todayStr;
-    const weekIndex = Math.min(Math.floor((new Date(due) - start) / (7*86400000)), weeks - 1);
-    if (weekIndex >= 0) buckets[weekIndex].inflows += bal;
+    if (latePaymentDays) due = addDays(due, latePaymentDays);
+    const idx = weekOf(due);
+    if (idx >= 0) buckets[idx].inflows += bal;
   }
 
-  // Recurring (simple: treat as monthly on same day)
+  // Recurring schedules: project each occurrence over the horizon from nextDate
   for (const rec of (state.recurring || [])) {
-    if (rec.paused) continue;
-    // Approximate next 3 months
-    for (let m = 0; m < 4; m++) {
-      const d = new Date(start);
-      d.setMonth(d.getMonth() + m);
-      if (rec.day) d.setDate(Math.min(rec.day, 28));
-      const ds = d.toISOString().slice(0,10);
-      if (ds < todayStr) continue;
-      const weekIndex = Math.min(Math.floor((d - start) / (7*86400000)), weeks - 1);
-      if (weekIndex >= 0 && weekIndex < weeks) {
-        buckets[weekIndex].inflows += rec.amount || 0;
-      }
+    if (!rec.active || !rec.nextDate) continue;
+    const source = (state.invoices || []).find(i => i.id === rec.sourceId);
+    if (!source) continue;
+    const amount = total(source);
+    if (amount <= 0) continue;
+    let d = rec.nextDate, guard = 0;
+    while (d && d <= endStr && guard++ < 60) {
+      const idx = weekOf(d);
+      if (idx >= 0) buckets[idx].inflows += amount;
+      d = addMonth(d, rec.anchor);
     }
   }
 
-  // Expenses (recent average monthly / 4 for weekly)
-  const recentExpenses = (state.expenses || []).filter(e => e.date >= addDays(todayStr, -90));
-  const avgWeeklyExpense = recentExpenses.reduce((a, e) => a + (e.amount || 0), 0) / 13;
-  for (const b of buckets) b.outflows += Math.round(avgWeeklyExpense);
+  // Expenses: run-rate from the last 90 days, spread over the horizon
+  const recentExpenses = (state.expenses || []).filter(e => e.date >= addDays(todayStr, -90) && e.date <= todayStr);
+  const weeklyRunRate = Math.round(recentExpenses.reduce((a, e) => a + (e.amount || 0), 0) / RUN_RATE_WEEKS);
+  for (const b of buckets) b.outflows += weeklyRunRate;
 
-  // Running balance
+  // Scenario: delayed / extra expense
+  if (extraExpenseAmount) buckets[extraExpenseWeek - 1].outflows += extraExpenseAmount;
+  // Scenario: new job income
+  if (newJobAmount) buckets[newJobWeek - 1].inflows += newJobAmount;
+
   let running = 0;
-  for (const b of buckets) {
-    b.net = b.inflows - b.outflows;
-    running += b.net;
-    b.balance = running;
-  }
+  for (const b of buckets) { b.net = b.inflows - b.outflows; running += b.net; b.balance = running; }
+
+  const minBalance = buckets.length ? buckets.reduce((m, b) => Math.min(m, b.balance), Infinity) : 0;
+  let runway = null;
+  for (let i = 0; i < buckets.length; i++) if (buckets[i].balance < 0) { runway = i; break; }
 
   return {
     weeks: buckets,
     totalIn: buckets.reduce((a,b) => a + b.inflows, 0),
     totalOut: buckets.reduce((a,b) => a + b.outflows, 0),
     endingBalance: running,
-    safeToSpend: Math.max(0, running * 0.6) // conservative
+    minBalance,
+    safeToSpend: Math.max(0, Math.round(minBalance * 0.8)),
+    runway,
+    runRate: weeklyRunRate
   };
+}
+
+// Ranked, deterministic actions derived from the same data as the forecast.
+export function cashFlowActions(state, forecast) {
+  const todayStr = today();
+  const actions = [];
+  const issued = (state.invoices || []).filter(i => i.state === 'issued' && balance(i) > 0);
+  const overdue = issued.filter(i => i.due < todayStr);
+  const overdueTotal = overdue.reduce((a, i) => a + balance(i), 0);
+  if (overdueTotal > 0) actions.push({ rank: 1, label: `Chase ${overdue.length} overdue invoice${overdue.length > 1 ? 's' : ''}`, amount: overdueTotal, action: 'overdue' });
+  const dueSoon = issued.filter(i => i.due >= todayStr && i.due <= addDays(todayStr, 7));
+  const dueSoonTotal = dueSoon.reduce((a, i) => a + balance(i), 0);
+  if (dueSoonTotal > 0) actions.push({ rank: 2, label: `Send reminders for ${dueSoon.length} invoice${dueSoon.length > 1 ? 's' : ''} due this week`, amount: dueSoonTotal, action: 'due' });
+  const recDue = (state.recurring || []).filter(r => r.active && r.nextDate && r.nextDate <= addDays(todayStr, 7));
+  if (recDue.length) actions.push({ rank: 3, label: `Generate ${recDue.length} scheduled invoice${recDue.length > 1 ? 's' : ''}`, amount: 0, action: 'recurring' });
+  const minBalance = forecast?.minBalance ?? 0;
+  if (minBalance < 0) actions.push({ rank: 0, label: 'Projected shortfall — hold non-essential spending', amount: -minBalance, action: 'shortfall' });
+  return actions.sort((a, b) => a.rank - b.rank);
 }
 
 // Simple local command parser for AI co-pilot (no external dependency)
@@ -193,4 +230,46 @@ export function clientScore(state, customerId) {
   let reliability = 'new';
   if (paid >= 2) reliability = avg <= 14 ? 'excellent' : avg <= 30 ? 'good' : 'slow';
   return { avgDays: avg, reliability, count: invoices.length };
+}
+
+// Full per-customer picture: payment behaviour plus a complete activity timeline.
+export function clientIntelligence(state, customerId) {
+  const customer = (state.customers || []).find(c => c.id === customerId) || null;
+  const invoices = (state.invoices || []).filter(i => i.customerId === customerId && i.state === 'issued');
+  const score = clientScore(state, customerId);
+  const totalBilled = invoices.reduce((a, i) => a + total(i), 0);
+  const totalPaid = invoices.reduce((a, i) => a + paid(i), 0);
+  const totalCredited = invoices.reduce((a, i) => a + credited(i), 0);
+  const outstanding = invoices.reduce((a, i) => a + balance(i), 0);
+  const events = [];
+  for (const i of invoices) {
+    events.push({ date: i.date, kind: 'invoice', ref: i.number, amount: total(i), balance: balance(i), detail: 'Invoice issued' });
+    for (const p of (i.payments || [])) {
+      events.push({ date: p.date, kind: 'payment', ref: i.number, amount: p.amount, detail: p.reference || 'Payment received' });
+      if (p.reversed) events.push({ date: (p.reversedAt || p.date).slice(0, 10), kind: 'reversal', ref: i.number, amount: -p.amount, detail: p.reversalReason || 'Payment reversed' });
+    }
+    for (const c of (i.credits || [])) events.push({ date: c.date, kind: 'credit', ref: c.number, amount: -c.amount, detail: c.reason || 'Credit note' });
+  }
+  events.sort((a, b) => a.date.localeCompare(b.date));
+  return { customer, score, totalBilled, totalPaid, totalCredited, outstanding, count: invoices.length, events };
+}
+
+// Tone adapts to the customer's payment history. Never sends anything: the
+// caller always shows the draft for the user to review and share manually.
+export function smartFollowUp(state, customerId) {
+  const c = (state.customers || []).find(c => c.id === customerId);
+  if (!c) throw Error('Customer not found.');
+  const open = (state.invoices || []).filter(i => i.customerId === customerId && i.state === 'issued' && balance(i) > 0);
+  if (!open.length) throw Error('This customer has no unpaid invoices to follow up on.');
+  const score = clientScore(state, customerId);
+  const overdue = open.filter(i => i.due < today());
+  const tone = score.reliability === 'slow' ? 'firm' : 'friendly';
+  const target = overdue.slice().sort((a, b) => a.due.localeCompare(b.due))[0] || open.slice().sort((a, b) => a.due.localeCompare(b.due))[0];
+  const totalOpen = open.reduce((a, i) => a + balance(i), 0);
+  const message = reminderText(target, tone);
+  return {
+    tone, reliability: score.reliability, avgDays: score.avgDays, count: score.count,
+    message, invoiceId: target.id, number: target.number, balance: balance(target),
+    overdueCount: overdue.length, openCount: open.length, totalOpen
+  };
 }

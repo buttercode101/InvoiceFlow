@@ -1,8 +1,10 @@
-import {validateReceipt,creditTax,encryptBackup,decryptBackup,bankRows,recordBankPayment,breakdown,credited,creditInvoice,saveQuote,setQuoteState,convertQuote,addRecurring,generateRecurring,addMonth,ageing,customerStatement,reminderText,makeBackup,today,dateOK,addDays,cents,qty,lineTotal,total,paid,balance,status,cashSummary,id,emptyState,createInvoice,issueInvoice,recordPayment,reversePayment,parseBackup,replaceWorkspaceContents,voidInvoice,validateState,checkExpense,CATEGORIES,expenseCSV,fingerprint,makeCSV,demoState,backupAgeDays,cashFlowForecast,parseCommand,clientScore} from './core.js';
+import {validateReceipt,creditTax,encryptBackup,decryptBackup,bankRows,recordBankPayment,breakdown,credited,creditInvoice,saveQuote,setQuoteState,convertQuote,addRecurring,generateRecurring,addMonth,ageing,customerStatement,reminderText,makeBackup,today,dateOK,addDays,cents,qty,lineTotal,total,paid,balance,status,cashSummary,id,emptyState,createInvoice,issueInvoice,recordPayment,reversePayment,parseBackup,replaceWorkspaceContents,voidInvoice,validateState,checkExpense,CATEGORIES,expenseCSV,fingerprint,makeCSV,demoState,backupAgeDays,cashFlowForecast,cashFlowActions,parseCommand,clientScore,clientIntelligence,smartFollowUp} from './core.js';
+import {parseDraft, normaliseDraft, draftContext, scoreClient} from './draft.js';
+import {parseReceiptText, suggestCategory, normalizeReceiptDraft, receiptDraftContext} from './receipt.js';
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const money=n=>new Intl.NumberFormat('en-ZA',{style:'currency',currency:'ZAR',minimumFractionDigits:2}).format(n/100);
 const decimal=n=>(n/100).toFixed(2),date=s=>dateOK(s)?new Date(s+'T12:00:00Z').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}):'—';
-const icons={grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',invoice:'<path d="M6 3h9l4 4v14l-3-2-4 2-4-2-3 2V4a1 1 0 0 1 1-1Z"/><path d="M14 3v5h5M8 12h8M8 16h5"/>',expense:'<path d="M5 7h14v13H5zM8 7V4h8v3M9 11h6M9 15h3"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1"/>',box:'<path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 10v9M3 8l9 5 9-5M8 5l9 5"/>',chart:'<path d="M4 3v17h17M8 15v-4M13 15V7M18 15V4"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>',plus:'<path d="M12 5v14M5 12h14"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',up:'<path d="M7 17 17 7M7 7h10v10"/>',down:'<path d="m7 7 10 10M7 17h10V7"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/>',check:'<path d="m5 12 4 4L19 6"/>',moon:'<path d="M20 14A9 9 0 0 1 10 4a9 9 0 1 0 10 10Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1 1M18 18l1 1M5 19l1-1M18 6l1-1"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/>',print:'<path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7z"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 5 9 8 9-8"/>',trash:'<path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>'};
+const icons={grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',invoice:'<path d="M6 3h9l4 4v14l-3-2-4 2-4-2-3 2V4a1 1 0 0 1 1-1Z"/><path d="M14 3v5h5M8 12h8M8 16h5"/>',expense:'<path d="M5 7h14v13H5zM8 7V4h8v3M9 11h6M9 15h3"/>',users:'<circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2M17 5a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v1"/>',box:'<path d="m12 3 9 5v9l-9 5-9-5V8l9-5Zm0 10v9M3 8l9 5 9-5M8 5l9 5"/>',chart:'<path d="M4 3v17h17M8 15v-4M13 15V7M18 15V4"/>',settings:'<path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/>',plus:'<path d="M12 5v14M5 12h14"/>',arrow:'<path d="M5 12h14m-5-5 5 5-5 5"/>',up:'<path d="M7 17 17 7M7 7h10v10"/>',down:'<path d="m7 7 10 10M7 17h10V7"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',download:'<path d="M12 3v12m-5-5 5 5 5-5M5 17v4h14v-4"/>',check:'<path d="m5 12 4 4L19 6"/>',moon:'<path d="M20 14A9 9 0 0 1 10 4a9 9 0 1 0 10 10Z"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1 1M18 18l1 1M5 19l1-1M18 6l1-1"/>',lock:'<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V6a4 4 0 0 1 8 0v4M12 14v3"/>',mic:'<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>',clipboard:'<rect x="8" y="2" width="8" height="4" rx="1" ry="1"/><path d="M16 4h2v5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4h2Z"/><path d="M8 13h8v5a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1Z"/>',spark:'<path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9Z"/><path d="M18.5 15.5l.9 2.1 2.1.9-2.1.9-.9 2.1-.9-2.1-2.1-.9 2.1-.9Z"/>',print:'<path d="M7 8V3h10v5M7 17H4V9h16v8h-3M7 14h10v7H7z"/>',mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 5 9 8 9-8"/>',trash:'<path d="M3 6h18M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>'};
 const icon=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.65" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icons[k]||icons.invoice}</svg>`;
 let returnMode='live';let state,db,mode='live',route={page:'overview'},invoiceFilter='all',search='',reportStart=today().slice(0,7)+'-01',reportEnd=today(),editLines=[],working=false,switching=false,offlineReady=false,offlineState='checking',toastTimer,draftTimer,renderedOnce=false,discardDraft=false,draftRestoredPending=false;
 const app=$('#app'),modal=$('#modal');
@@ -31,7 +33,7 @@ function render(){const current=route.quote||route.page==='quote'?'quotes':route
 function enhanceScrollRegions(){const nav=app.querySelector('nav'),active=nav?.querySelector('[aria-current=page]');if(nav&&active&&nav.scrollWidth>nav.clientWidth)nav.scrollLeft=active.offsetLeft-nav.offsetLeft-(nav.clientWidth-active.offsetWidth)/2;for(const table of app.querySelectorAll('.table-wrap')){if(table.scrollWidth<=table.clientWidth)continue;table.tabIndex=0;table.setAttribute('role','region');table.setAttribute('aria-label','Scrollable table. Use arrow keys or swipe sideways to see all columns.');const hint=document.createElement('p');hint.className='table-scroll-hint';hint.textContent='Swipe or scroll sideways to see all columns →';table.before(hint)}}
 function heading(title,subtitle,actions='',eyebrow='YOUR MONEY, AT A GLANCE'){return `<div class="heading"><div><div class="eyebrow">${eyebrow}</div><h1>${title}</h1><p class="subtitle">${subtitle}</p></div><div class="actions">${actions}</div></div>`}
 const btn=(label,action,primary=false,i='',extra='')=>`<button class="btn ${primary?'primary':''}" data-action="${action}" ${extra}>${i?icon(i):''}${label}</button>`;
-function renderPage(){switch(route.page){case'quotes':return quotesPage();case'quote':return quotePage();case'collections':return collectionsPage();case'overview':return overview();case'invoices':return invoicesPage();case'customers':return customersPage();case'items':return itemsPage();case'expenses':return expensesPage();case'settings':return settingsPage();case'editor':return editorPage();case'invoice':return invoicePage();case'reports':return reportsPage();case'cashflow':return cashFlowPage();default:return overview()}}
+function renderPage(){switch(route.page){case'quotes':return quotesPage();case'quote':return quotePage();case'collections':return collectionsPage();case'overview':return overview();case'invoices':return invoicesPage();case'customers':return customersPage();case'items':return itemsPage();case'expenses':return expensesPage();case'settings':return settingsPage();case'editor':return editorPage();case'invoice':return invoicePage();case'reports':return reportsPage();case'cashflow':return cashFlowPage();case'client':return clientPage();default:return overview()}}
 function empty(i,title,text,action=''){return `<div class="empty"><div class="empty-icon">${icon(i)}</div><h3>${title}</h3><p>${text}</p>${action}</div>`}
 function pill(i){const s=status(i),labels={draft:'Draft',sent:'Sent',paid:'Paid',overdue:'Overdue',partial:'Part paid',void:'Voided',credited:'Credited'};return `<span class="pill ${s}"><span aria-hidden="true">${s==='paid'?'✓':'·'}</span>${labels[s]}</span>`}
 function invoiceTable(list,compact=false){if(!list.length)return empty('invoice','No invoices here yet','Create an invoice, add your work, and keep track of what comes next.',btn('Create invoice','new-invoice',true,'plus'));return `<div class="table-wrap"><table><thead><tr><th>Invoice / customer</th>${compact?'':'<th>Issued</th>'}<th>Due date</th><th>Status</th><th class="num">${compact?'Balance':'Total / balance'}</th></tr></thead><tbody>${list.map(i=>`<tr><td><button class="link-button" data-view="${i.id}">${esc(i.number)}</button><div class="muted">${esc(i.customer.name)}</div></td>${compact?'':`<td>${date(i.date)}</td>`}<td>${date(i.due)}</td><td>${pill(i)}</td><td class="num"><strong>${money(i.state==='void'?0:balance(i))}</strong>${compact?'':`<div class="muted">${money(total(i))} total</div>`}</td></tr>`).join('')}</tbody></table></div>`}
@@ -40,7 +42,23 @@ function overview(){const start=today().slice(0,7)+'-01',s=cashSummary(state,sta
 function chart(){const d=new Date(today()+'T12:00:00Z');const months=Array.from({length:6},(_,n)=>{const from=new Date(Date.UTC(d.getUTCFullYear(),d.getUTCMonth()-5+n,1)),to=new Date(Date.UTC(from.getUTCFullYear(),from.getUTCMonth()+1,0)),label=from.toLocaleDateString('en-ZA',{month:'short'}),a=from.toISOString().slice(0,10),b=to.toISOString().slice(0,10),s=cashSummary(state,a,b);return {...s,label}}),max=Math.max(1,...months.flatMap(m=>[m.income,m.expenses]));return `<div class="cash-chart" role="img" aria-label="${esc(months.map(m=>`${m.label}: received ${money(m.income)}, expenses ${money(m.expenses)}`).join('; '))}">${months.map(m=>`<div class="chart-group" title="${esc(m.label+': received '+money(m.income)+', expenses '+money(m.expenses))}"><div class="bar" style="height:${Math.max(1,m.income/max*100)}%"></div><div class="bar expense" style="height:${Math.max(1,m.expenses/max*100)}%"></div></div>`).join('')}</div><div class="chart-labels">${months.map(m=>`<span>${m.label}</span>`).join('')}</div><div class="legend"><span><i></i>Received</span><span><i class="expense"></i>Expenses</span></div>`}
 function invoicesPage(){return `${heading('Invoices','From your first draft to your last payment.',btn('Export CSV','export-invoices',false,'download')+btn('New invoice','new-invoice',true,'plus')+btn('Co-pilot','copilot',false,'spark'),'GET PAID FOR YOUR WORK')}<div class="toolbar"><div class="filters" role="group" aria-label="Filter invoices">${[['all','All'],['draft','Draft'],['sent','Sent'],['partial','Part paid'],['overdue','Overdue'],['paid','Paid'],['void','Voided'],['credited','Credited']].map(([k,l])=>`<button class="filter ${invoiceFilter===k?'active':''}" data-filter="${k}" aria-pressed="${invoiceFilter===k}">${l}</button>`).join('')}</div><input class="search" type="search" id="invoice-search" placeholder="Search customer or invoice…" aria-label="Search invoices" value="${esc(search)}"></div><section class="panel" id="invoice-results">${filteredInvoices()}</section>`}
 function filteredInvoices(){let list=[...state.invoices].reverse().filter(i=>(invoiceFilter==='all'||status(i)===invoiceFilter)&&`${i.number} ${i.customer.name}`.toLowerCase().includes(search.toLowerCase()));return list.length?invoiceTable(list):empty('invoice',state.invoices.length?'No matching invoices':'Your next payday starts here',state.invoices.length?'Try another status or search term.':'Create a clear, professional invoice in a few simple steps.',btn('New invoice','new-invoice',true,'plus')+btn('Co-pilot','copilot',false,'spark'))}
-function customersPage(){return `${heading('Customers','Good relationships, with the details in one place.',btn('Add customer','new-customer',true,'plus'),'THE PEOPLE YOU WORK WITH')}<section class="panel">${state.customers.length?[...state.customers].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{const owed=state.invoices.filter(i=>i.customerId===c.id&&i.state==='issued').reduce((a,i)=>a+balance(i),0);const score=clientScore(state,c.id);return `<div class="list-card"><div><h3>${esc(c.name)}</h3><p>${esc(c.email||'No email added')}${c.address?'\n'+esc(c.address):''}</p><div class="small muted">Score: ${score.reliability}${score.avgDays!=null?' · avg '+score.avgDays+' days':''}</div></div><div class="text-right"><strong class="small">${money(owed)} outstanding</strong><div class="section-gap"><button class="btn small" data-statement="${c.id}">Statement</button><button class="btn small" data-edit-customer="${c.id}">Edit</button></div></div></div>`}).join(''):empty('users','A home for your customers','Save contact details once. Reuse them on every invoice.',btn('Add customer','new-customer',true,'plus'))}</section><p class="form-note">Issued invoices keep their original customer details. Updating a customer only affects new or edited drafts.</p>`}
+function customersPage(){return `${heading('Customers','Good relationships, with the details in one place.',btn('Add customer','new-customer',true,'plus'),'THE PEOPLE YOU WORK WITH')}<section class="panel">${state.customers.length?[...state.customers].sort((a,b)=>a.name.localeCompare(b.name)).map(c=>{const owed=state.invoices.filter(i=>i.customerId===c.id&&i.state==='issued').reduce((a,i)=>a+balance(i),0);const score=clientScore(state,c.id);return `<div class="list-card"><div><h3>${esc(c.name)}</h3><p>${esc(c.email||'No email added')}${c.address?'\n'+esc(c.address):''}</p><div class="small muted">Score: ${score.reliability}${score.avgDays!=null?' · avg '+score.avgDays+' days':''}</div></div><div class="text-right"><strong class="small">${money(owed)} outstanding</strong><div class="section-gap"><button class="btn small" data-client-view="${c.id}">View</button><button class="btn small" data-statement="${c.id}">Statement</button><button class="btn small" data-edit-customer="${c.id}">Edit</button></div></div></div>`}).join(''):empty('users','A home for your customers','Save contact details once. Reuse them on every invoice.',btn('Add customer','new-customer',true,'plus'))}</section><p class="form-note">Issued invoices keep their original customer details. Updating a customer only affects new or edited drafts.</p>`}
+
+function clientPage(){
+  const info=clientIntelligence(state,route.id), c=info.customer;
+  if(!c) return heading('Customer not found','Choose another customer.');
+  const open=state.invoices.filter(i=>i.customerId===route.id&&i.state==='issued'&&balance(i)>0);
+  let follow=null; if(open.length){ try{ follow=smartFollowUp(state,route.id); }catch{} }
+  const relLabel={new:'New',excellent:'Excellent',good:'Good',slow:'Slow'}[info.score.reliability]||info.score.reliability;
+  const toneLabel=follow?(follow.tone==='firm'?'Firm follow-up':'Friendly reminder'):'';
+  const toneReason=follow?(follow.reliability==='slow'
+    ?`Paid an average of ${follow.avgDays} days late across ${follow.count} invoice${follow.count===1?'':'s'}.`
+    :follow.avgDays!=null
+      ?`Paid an average of ${follow.avgDays} days across ${follow.count} invoice${follow.count===1?'':'s'}.`
+      :'No completed payment history yet.'):'';
+  const daysStat=`<div class="stat"><div class="stat-label"><span>Avg days to pay</span>${icon('clock')}</div><div class="stat-value">${info.score.avgDays==null?'—':info.score.avgDays+' days'}</div><div class="stat-note">${relLabel}</div></div>`;
+  return `${heading(esc(c.name),esc(c.email||'No email added'),btn('All customers','customers'))}<div class="stats">${stat('Outstanding',info.outstanding,`${open.length} unpaid invoice${open.length===1?'':'s'}`,'invoice',true)}${stat('Total billed',info.totalBilled,`${info.count} invoice${info.count===1?'':'s'} issued`,'up')}${stat('Total received',info.totalPaid,'Recorded payments','down')}${daysStat}</div><div class="panel"><div class="panel-head"><h2>Smart follow-up</h2><span class="small muted">Tone adapts to payment history</span></div><div class="panel-body">${follow?`<div class="notice"><strong>${toneLabel}</strong> · ${esc(toneReason)}<br>Reference ${esc(follow.number)} · Balance ${money(follow.balance)} · ${follow.openCount} open invoice${follow.openCount===1?'':'s'} (${money(follow.totalOpen)})</div><details class="section-gap"><summary class="link-button small">Preview the draft</summary><p class="form-note section-gap">${esc(follow.message).replace(/\n/g,'<br>')}</p></details>${btn('Prepare follow-up message','smart-followup',true,'mail')}`:'<p class="form-note">No unpaid invoices, so there is nothing to follow up on.</p>'}</div></div><div class="panel"><div class="panel-head"><h2>Activity timeline</h2></div>${info.events.length?`<div class="table-wrap"><table><thead><tr><th>Date</th><th>Event</th><th class="num">Amount</th><th class="num">Balance</th></tr></thead><tbody>${info.events.map(e=>`<tr><td>${date(e.date)}</td><td><span class="pill ${e.kind}">${e.kind}</span> <strong>${esc(e.ref)}</strong><div class="muted">${esc(e.detail)}</div></td><td class="num ${e.amount<0?'neg':'pos'}">${money(e.amount)}</td><td class="num">${e.kind==='invoice'?money(e.balance):''}</td></tr>`).join('')}</tbody></table></div>`:'<div class="panel-body"><p class="form-note">No activity recorded yet.</p></div>'}</div><div class="panel"><div class="panel-head"><h2>Open invoices</h2></div>${open.length?invoiceTable(open):'<div class="panel-body"><p class="form-note">Nothing outstanding.</p></div>'}</div>`;
+}
 function itemsPage(){return `${heading('Items & services','Your regular work, ready to add to an invoice.',btn('Add item','new-item',true,'plus'),'LESS REPEATING YOURSELF')}<section class="panel">${state.items.length?state.items.map(i=>`<div class="list-card"><div><h3>${esc(i.name)}</h3><p>${money(i.price)} per unit</p></div><div class="actions"><button class="btn small" data-edit-item="${i.id}">Edit</button><button class="icon-btn" data-delete-item="${i.id}" aria-label="Delete ${esc(i.name)}">${icon('trash')}</button></div></div>`).join(''):empty('box','Save your go-to work','Design hours, consulting sessions or products. Add what you invoice often.',btn('Add item','new-item',true,'plus'))}</section>`}
 function expensesPage(){const sum=state.expenses.reduce((a,e)=>a+e.amount,0);return `${heading('Expenses','Keep the small costs from becoming a big mystery.',btn('Import CSV','import-expenses',false,'up')+btn('Add expense','new-expense',true,'plus')+btn('From photo','new-expense-photo',false,'camera'),'KNOW WHERE IT GOES')}<div class="toolbar"><span class="small muted">${state.expenses.length} expense${state.expenses.length===1?'':'s'} · ${money(sum)} recorded in total</span>${btn('Export CSV','export-expenses',false,'download')}</div><section class="panel">${state.expenses.length?`<div class="table-wrap"><table><thead><tr><th>Expense</th><th>Date</th><th>Category</th><th class="num">Amount</th><th><span class="small">Actions</span></th></tr></thead><tbody>${[...state.expenses].sort((a,b)=>b.date.localeCompare(a.date)).map(e=>`<tr><td><strong>${esc(e.description)}</strong></td><td>${date(e.date)}</td><td><span class="pill">${esc(e.category)}</span></td><td class="num">${money(e.amount)}</td><td><button class="link-button" data-edit-expense="${e.id}">Edit</button>${e.receipt?`<button class="btn small" data-receipt="${e.id}">Receipt</button>`:''}</td></tr>`).join('')}</tbody></table></div>`:empty('expense','A fresh start for your expenses','Add one by hand or bring your list across from a spreadsheet.',btn('Add expense','new-expense',true,'plus'))}</section><p class="form-note">Record business expenses in rand. Categories help organise your records; they do not determine tax deductibility.</p>`}
 function reportsPage(){const s=cashSummary(state,reportStart,reportEnd),rows=CATEGORIES.map(c=>({name:c,amount:state.expenses.filter(e=>e.category===c&&e.date>=reportStart&&e.date<=reportEnd).reduce((a,e)=>a+e.amount,0)})).filter(c=>c.amount);return `${heading('The simple cash picture.','What came in, what went out, and what’s still owed.',btn('Export report','export-report',false,'download'),'REPORTS WITHOUT THE RABBIT HOLE')}<form id="report-form" class="toolbar"><div class="actions"><div class="field mb-0"><label for="report-start">From</label><input type="date" required id="report-start" value="${reportStart}"></div><div class="field mb-0"><label for="report-end">To</label><input type="date" required id="report-end" max="${today()}" value="${reportEnd}"></div><button class="btn primary" type="submit">Apply dates</button></div></form><div class="stats">${stat('Payments received',s.income,'Within the selected dates','down',true)}${stat('Expenses recorded',s.expenses,'Within the selected dates','up')}${stat('Net cash',s.net,'Receipts minus expenses','chart')}${stat('Still outstanding',s.outstanding,'All issued invoices · as of today','clock')}</div><div class="grid-main"><section class="panel"><div class="panel-head"><h2>Expenses by category</h2></div>${rows.length?`<div class="table-wrap"><table><thead><tr><th>Category</th><th class="num">Recorded</th></tr></thead><tbody>${rows.map(c=>`<tr><td>${c.name}</td><td class="num">${money(c.amount)}</td></tr>`).join('')}<tr><td><strong>Total expenses</strong></td><td class="num"><strong>${money(s.expenses)}</strong></td></tr></tbody></table></div>`:empty('chart','No expenses in this period','Change the dates or record an expense to see your breakdown.')}</section><div class="helper-card"><h3>What this report tells you</h3><p>Income is recorded when a payment is received, using the payment date. Expenses use the date you enter. Unpaid and draft invoices are not income.</p><p>Outstanding balances include all issued invoices, regardless of this date filter. Voided invoices are excluded.</p><p class="mb-0">This is a cash summary. It does not calculate accounting profit, tax liability, depreciation or your bank balance.</p></div></div>`}
@@ -61,6 +79,37 @@ function confirmDialog(title,text,action,label='Confirm'){modalForm(title,`<p cl
 function customerDialog(customerId){const c=state.customers.find(c=>c.id===customerId)||{name:'',email:'',address:''};modalForm(customerId?'Edit customer':'Add a customer',`<div class="field"><label for="customer-name">Customer / business name *</label><input id="customer-name" name="name" required maxlength="200" value="${esc(c.name)}" autocomplete="organization"></div><div class="field"><label for="customer-email">Email</label><input id="customer-email" name="email" type="email" maxlength="254" value="${esc(c.email)}" autocomplete="email"></div><div class="field"><label for="customer-address">Address *</label><textarea id="customer-address" name="address" required maxlength="1500" autocomplete="street-address">${esc(c.address)}</textarea></div><div class="field"><label for="customer-vat">Customer VAT number (if registered)</label><input id="customer-vat" name="vatNumber" pattern="4[0-9]{9}" maxlength="10" value="${esc(c.vatNumber||'')}"></div><p class="form-note">Customer details are stored only in your workspace. No email is sent.</p>`,async f=>{let newId=customerId||id();await commit(s=>{const value={id:newId,name:f.get('name').trim(),email:f.get('email').trim(),address:f.get('address').trim(),vatNumber:f.get('vatNumber').trim()};if(!value.name||!value.address)throw Error('Add a name and address.');if(customerId)s.customers[s.customers.findIndex(c=>c.id===customerId)]=value;else s.customers.push(value)});modal.close();if(route.page==='editor'){const select=$('#invoice-customer');select.innerHTML='<option value="">Choose a customer</option>'+state.customers.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');select.value=newId}else render();toast('Customer saved.')})}
 function itemDialog(itemId){const item=state.items.find(i=>i.id===itemId)||{name:'',price:0};modalForm(itemId?'Edit item':'Save an item or service',`<div class="field"><label for="item-name">Item / service name *</label><input required id="item-name" name="name" maxlength="300" value="${esc(item.name)}"></div><div class="field"><label for="item-price">Unit price (R) *</label><input required id="item-price" name="price" inputmode="decimal" type="number" step="0.01" min="0" max="100000000" value="${decimal(item.price)}"></div>`,async f=>{await commit(s=>{const value={id:itemId||id(),name:f.get('name').trim(),price:cents(f.get('price'))};if(!value.name)throw Error('Add a name.');if(itemId)s.items[s.items.findIndex(i=>i.id===itemId)]=value;else s.items.push(value)});modal.close();render();toast('Item saved.')})}
 function expenseDialog(expenseId){const e=state.expenses.find(e=>e.id===expenseId)||{description:'',date:today(),amount:0,category:'Other'};modalForm(expenseId?'Edit expense':'Add an expense',`<div class="field"><label for="expense-desc">What was it for? *</label><input id="expense-desc" name="description" required maxlength="300" placeholder="e.g. Design software subscription" value="${esc(e.description)}"></div><div class="form-grid"><div class="field"><label for="expense-date">Paid on *</label><input type="date" required id="expense-date" name="date" max="${today()}" value="${e.date}"></div><div class="field"><label for="expense-amount">Amount (R) *</label><input inputmode="decimal" type="number" step="0.01" min="0.01" max="100000000" required id="expense-amount" name="amount" value="${e.amount?decimal(e.amount):''}"></div></div><div class="field"><label for="expense-category">Category *</label><select id="expense-category" name="category">${CATEGORIES.map(c=>`<option ${e.category===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="field"><label for="expense-receipt">Receipt photo or PDF (optional, up to 500 KB)</label><input id="expense-receipt" name="receipt" type="file" accept="image/png,image/jpeg,application/pdf"></div>${e.receipt?`<p class="form-note">Saved attachment: ${esc(e.receipt.name)}. Leave the file field empty to keep it.</p><label class="check-row"><input type="checkbox" name="removeReceipt"><span>Remove the saved attachment</span></label>`:''}${expenseId?`<p class="form-note">To remove this expense, choose <button class="link-button" type="button" id="delete-expense">Delete expense</button>.</p>`:''}`,async f=>{let receipt=e.receipt;const file=f.get('receipt');if(f.get('removeReceipt')==='on')receipt=undefined;if(file?.size){if(f.get('removeReceipt')==='on')throw Error('Choose a replacement receipt or remove the saved receipt, not both.');if(file.size>500000)throw Error('Choose a receipt up to 500 KB.');const bytes=new Uint8Array(await file.arrayBuffer());let encoded='';for(let n=0;n<bytes.length;n+=8192)encoded+=String.fromCharCode(...bytes.subarray(n,n+8192));receipt=validateReceipt({name:file.name.slice(0,150),type:file.type,data:btoa(encoded)})}await commit(s=>{const value=checkExpense({id:expenseId||id(),description:f.get('description').trim(),date:f.get('date'),amount:cents(f.get('amount')),category:f.get('category'),...(receipt?{receipt}:{})});if(expenseId)s.expenses[s.expenses.findIndex(e=>e.id===expenseId)]=value;else s.expenses.push(value)});modal.close();render();toast('Expense saved.')});if(expenseId)$('#delete-expense').onclick=()=>{modal.close();confirmDialog('Delete expense?','This removes the expense from your records and cash summaries.',async()=>{await commit(s=>{s.expenses=s.expenses.filter(e=>e.id!==expenseId)});toast('Expense deleted.')},'Delete expense')}}
+
+// Optional BYOK vision read: sends the receipt image to the user's own
+// OpenAI-compatible endpoint and parses the JSON reply. Without a key the
+// dialog still works — the user reads the receipt and types the details.
+async function receiptVisionRead(file){
+  if(!copilotByokEnabled()||!copilotByokApiKey())throw Error('Add your AI key in the Co-pilot panel to read receipts, or enter the details manually.');
+  const endpoint=copilotByokEndpoint(),model=copilotByokModel(),apiKey=copilotByokApiKey();
+  const bytes=new Uint8Array(await file.arrayBuffer());
+  let encoded='';for(let n=0;n<bytes.length;n+=8192)encoded+=String.fromCharCode(...bytes.subarray(n,n+8192));
+  const dataUrl=`data:${file.type};base64,${btoa(encoded)}`;
+  const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'user',content:[{type:'text',text:'Read this receipt and reply with JSON only: {"description":string,"amount":number in rand,"date":"YYYY-MM-DD","category":one of Software,Travel,Office,Marketing,Supplies,Professional services,Other}. Use null for anything you cannot read.'},{type:'image_url',image_url:{url:dataUrl}}]}],max_tokens:400})});
+  if(!res.ok){const d=await res.text().catch(()=>'');throw Error(`AI request failed (${res.status}). ${d.slice(0,160)}`)}
+  const data=await res.json();
+  return parseReceiptText(data?.choices?.[0]?.message?.content||'');
+}
+
+function expensePhotoDialog(){
+  const ctx=receiptDraftContext(state);
+  modalForm('Expense from photo',`<p class="form-note">Attach a photo of the receipt. Amounts are read by you or by your own AI key — never guessed.</p><div class="field"><label for="photo-file">Receipt photo or PDF (up to 500 KB)</label><input id="photo-file" name="receipt" type="file" accept="image/png,image/jpeg,application/pdf" capture="environment"></div><div id="photo-preview" class="field" hidden><img id="photo-img" alt="Receipt preview" style="max-width:100%;max-height:260px;border-radius:8px;border:1px solid var(--border)"></div><div class="field"><label for="photo-desc">Vendor / description *</label><input id="photo-desc" name="description" required maxlength="300" placeholder="e.g. Print supplies"></div><div class="form-grid"><div class="field"><label for="photo-date">Paid on *</label><input type="date" required id="photo-date" name="date" max="${today()}" value="${today()}"></div><div class="field"><label for="photo-amount">Amount (R) *</label><input inputmode="decimal" type="number" step="0.01" min="0.01" required id="photo-amount" name="amount"></div></div><div class="field"><label for="photo-category">Category *</label><select id="photo-category" name="category">${CATEGORIES.map(c=>`<option ${ctx.usualCategory===c?'selected':''}>${c}</option>`).join('')}</select></div><div class="actions"><button class="btn" type="button" id="photo-read">Read with AI</button><span class="small muted">Optional · uses your BYOK key</span></div>`,async f=>{
+    const file=f.get('receipt');
+    if(file?.size&&file.size>500000)throw Error('Choose a receipt up to 500 KB.');
+    let receipt;
+    if(file?.size){const bytes=new Uint8Array(await file.arrayBuffer());let encoded='';for(let n=0;n<bytes.length;n+=8192)encoded+=String.fromCharCode(...bytes.subarray(n,n+8192));receipt=validateReceipt({name:file.name.slice(0,150),type:file.type,data:btoa(encoded)})}
+    await commit(s=>{s.expenses.push(checkExpense({id:id(),description:f.get('description').trim(),date:f.get('date'),amount:cents(f.get('amount')),category:f.get('category'),...(receipt?{receipt}:{})}))});
+    modal.close();render();toast('Expense saved.');
+  },'Save expense');
+  const fileInput=$('#photo-file'),preview=$('#photo-preview'),img=$('#photo-img');
+  if(fileInput)fileInput.addEventListener('change',()=>{const f=fileInput.files?.[0];if(f&&f.type.startsWith('image/')){img.src=URL.createObjectURL(f);preview.hidden=false}else preview.hidden=true});
+  const readBtn=$('#photo-read');
+  if(readBtn)readBtn.onclick=async()=>{const f=fileInput?.files?.[0];if(!f){toast('Choose a receipt photo first.');return}try{const draft=await receiptVisionRead(f);if(draft.description)$('#photo-desc').value=draft.description;if(draft.amount)$('#photo-amount').value=decimal(draft.amount);if(draft.date)$('#photo-date').value=draft.date;if(draft.category)$('#photo-category').value=draft.category;toast('Receipt read. Check the details before saving.')}catch(e){toast(e.message)}};
+}
 function paymentDialog(){const i=state.invoices.find(i=>i.id===route.id);modalForm('Record a payment',`<div class="notice"><strong>${esc(i.number)}</strong> · ${esc(i.customer.name)}<br>Remaining balance: <strong>${money(balance(i))}</strong><br>Only record money you have actually received.</div><div class="form-grid"><div class="field"><label for="payment-amount">Amount received (R) *</label><input id="payment-amount" name="amount" required type="number" inputmode="decimal" min="0.01" step="0.01" max="${decimal(balance(i))}" value="${decimal(balance(i))}"></div><div class="field"><label for="payment-date">Received on *</label><input id="payment-date" name="date" required type="date" min="${i.date}" max="${today()}" value="${today()}"></div></div><div class="field"><label for="payment-ref">Reference / note</label><input id="payment-ref" name="reference" maxlength="150" placeholder="e.g. EFT payment received"></div><p class="form-note">Use a smaller amount for a deposit or partial payment. The balance and cash summary update automatically.</p>`,async f=>{await commit(s=>recordPayment(s,i.id,{amount:cents(f.get('amount')),date:f.get('date'),reference:f.get('reference').trim()}));modal.close();render();toast('Payment recorded. Balance updated.')},'Record payment')}
 function shareDialog(){const i=state.invoices.find(i=>i.id===route.id),text=`Hi ${i.customer.name},\n\n${i.state==='draft'?'Draft invoice':'Invoice'} ${i.number} from ${i.business.name}.\nTotal: ${money(total(i))}\nBalance: ${money(balance(i))}\nDue: ${date(i.due)}\n\n${i.lines.map(l=>`${l.description} × ${Number(decimal(l.quantity))} — ${money(lineTotal(l))}`).join('\n')}\n\n${i.business.bank?i.business.bank+'\nReference: '+i.number+'\n\n':''}${i.paymentLink?'Payment link: '+i.paymentLink+'\n\n':''}${i.notes}`;modalForm('Share your invoice',`<p class="small muted">This shares text only. To include the invoice PDF, use Download PDF (or Print / save PDF), then attach it in your email or messaging app.</p><div class="field"><label for="share-text">Message</label><textarea id="share-text" rows="10" readonly>${esc(text)}</textarea></div><div class="actions"><a class="btn" href="mailto:${encodeURIComponent(i.customer.email)}?subject=${encodeURIComponent(`${i.number} · ${i.business.name}`)}&body=${encodeURIComponent(text)}">${icon('mail')}Open email app</a><button class="btn" type="button" id="native-share">Share with another app</button></div><p class="form-note">Nothing is sent automatically. Delivery is handled by your chosen app; InvoiceFlow cannot verify it.</p>`,async()=>{try{await navigator.clipboard.writeText(text);toast('Invoice text copied.');modal.close()}catch{const area=$('#share-text');area.focus();area.select();throw Error('Automatic copy is unavailable. The message is selected; use your browser’s Copy command.')}},'Copy text');$('#native-share').onclick=async()=>{try{if(navigator.share)await navigator.share({title:i.number,text});else{await navigator.clipboard.writeText(text);toast('Sharing unavailable here. Invoice text copied.')}}catch(e){if(e.name!=='AbortError')$('#dialog-error').textContent='Could not share automatically. Select and copy the message above.'}}}
 function download(content,name,type='application/json'){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),10000)}
@@ -83,19 +132,19 @@ const actions={
  'void-invoice':()=>{const invoiceId=route.id;confirmDialog('Void this unpaid invoice?','The invoice stays in your records, marked void. It will no longer count toward your outstanding balance.',async()=>{await commit(s=>voidInvoice(s,invoiceId));toast('Invoice voided.')},'Void invoice')},
  'add-line':()=>{try{editLines=readLines();if(editLines.length>=100)throw Error('An invoice can have up to 100 lines.');editLines.push({description:'',quantity:100,price:0});$('#invoice-lines').innerHTML=lineRows();updateEditorTotal();scheduleDraftSave();}catch(e){failure(e)}}
 };
-app.addEventListener('click',async event=>{const b=event.target.closest('button');if(!b)return;try{if(b.dataset.page){await goto(b.dataset.page);return}if(b.dataset.action){await actions[b.dataset.action]?.();return}if(b.dataset.receipt){const r=state.expenses.find(e=>e.id===b.dataset.receipt)?.receipt;if(r){validateReceipt(r);download(Uint8Array.from(atob(r.data),x=>x.charCodeAt(0)),r.name,r.type)}return}if(b.dataset.statement){statementDialog(b.dataset.statement);return}if(b.dataset.quoteView){await goto('quote',{id:b.dataset.quoteView});return}if(b.dataset.quoteAction){await quoteAction(b.dataset.quoteAction);return}if(b.dataset.generate){let newId;await commit(s=>newId=generateRecurring(s,b.dataset.generate));goto('invoice',{id:newId});toast('Recurring draft created. Review before sending.');return}if(b.dataset.pause){await commit(s=>{const r=s.recurring.find(r=>r.id===b.dataset.pause);r.active=!r.active});render();return}if(b.dataset.creditPdf){await creditPDF(b.dataset.creditPdf);return}if(b.dataset.view){await goto('invoice',{id:b.dataset.view});return}if(b.dataset.reversePayment){reverseDialog(b.dataset.reversePayment);return}if(b.dataset.editCustomer){customerDialog(b.dataset.editCustomer);return}if(b.dataset.editItem){itemDialog(b.dataset.editItem);return}if(b.dataset.editExpense){expenseDialog(b.dataset.editExpense);return}if(b.dataset.deleteItem){const itemId=b.dataset.deleteItem;confirmDialog('Delete saved item?','Existing invoices keep their saved line items.',async()=>{await commit(s=>{s.items=s.items.filter(i=>i.id!==itemId)});toast('Item deleted.')},'Delete item');return}if(b.dataset.filter){invoiceFilter=b.dataset.filter;render();return}if(b.dataset.removeLine!==undefined){editLines=readLines();editLines.splice(Number(b.dataset.removeLine),1);$('#invoice-lines').innerHTML=lineRows();updateEditorTotal();scheduleDraftSave()}}catch(e){failure(e)}});
+app.addEventListener('click',async event=>{const b=event.target.closest('button');if(!b)return;try{if(b.dataset.page){await goto(b.dataset.page);return}if(b.dataset.action){await actions[b.dataset.action]?.();return}if(b.dataset.receipt){const r=state.expenses.find(e=>e.id===b.dataset.receipt)?.receipt;if(r){validateReceipt(r);download(Uint8Array.from(atob(r.data),x=>x.charCodeAt(0)),r.name,r.type)}return}if(b.dataset.statement){statementDialog(b.dataset.statement);return}if(b.dataset.quoteView){await goto('quote',{id:b.dataset.quoteView});return}if(b.dataset.quoteAction){await quoteAction(b.dataset.quoteAction);return}if(b.dataset.generate){let newId;await commit(s=>newId=generateRecurring(s,b.dataset.generate));goto('invoice',{id:newId});toast('Recurring draft created. Review before sending.');return}if(b.dataset.pause){await commit(s=>{const r=s.recurring.find(r=>r.id===b.dataset.pause);r.active=!r.active});render();return}if(b.dataset.creditPdf){await creditPDF(b.dataset.creditPdf);return}if(b.dataset.view){await goto('invoice',{id:b.dataset.view});return}if(b.dataset.clientView){await goto('client',{id:b.dataset.clientView});return}if(b.dataset.reversePayment){reverseDialog(b.dataset.reversePayment);return}if(b.dataset.editCustomer){customerDialog(b.dataset.editCustomer);return}if(b.dataset.editItem){itemDialog(b.dataset.editItem);return}if(b.dataset.editExpense){expenseDialog(b.dataset.editExpense);return}if(b.dataset.deleteItem){const itemId=b.dataset.deleteItem;confirmDialog('Delete saved item?','Existing invoices keep their saved line items.',async()=>{await commit(s=>{s.items=s.items.filter(i=>i.id!==itemId)});toast('Item deleted.')},'Delete item');return}if(b.dataset.filter){invoiceFilter=b.dataset.filter;render();return}if(b.dataset.removeLine!==undefined){editLines=readLines();editLines.splice(Number(b.dataset.removeLine),1);$('#invoice-lines').innerHTML=lineRows();updateEditorTotal();scheduleDraftSave()}}catch(e){failure(e)}});
 function updateEditorTotal(){try{const lines=readLines();let sum=0;lines.forEach((l,n)=>{const amount=lineTotal(l);sum+=amount;document.querySelectorAll('.line-total')[n].textContent=money(amount)});if(sum>10000000000)throw Error('Invoice total is too large.');const f=new FormData($('#invoice-form')),b=breakdown({lines,business:state.business,discount:cents(f.get('discount')||'0'),...taxFields(f.get('tax'))});$('#editor-total').textContent=money(b.total);$('#editor-tax').textContent=`Net ${money(b.net)} · VAT ${money(b.vat)}`}catch{$('#editor-total').textContent='Check amounts'}}
 function bindPage(){const sf=$('#settings-form');if(sf)sf.onsubmit=async e=>{e.preventDefault();const submit=e.submitter;submit.disabled=true;try{const f=new FormData(sf);await commit(s=>{s.business={name:f.get('name').trim(),email:f.get('email').trim(),phone:f.get('phone').trim(),address:f.get('address').trim(),bank:f.get('bank').trim(),notes:f.get('notes').trim(),nonVat:f.get('nonVat')==='on',vatNumber:f.get('nonVat')==='on'?'':f.get('vatNumber').trim()};if(!s.business.name||!s.business.address)throw Error('Business name and address are required.')});render();toast('Business details saved. You’re ready to invoice.')}catch(error){$('#settings-error').textContent=error.message;$('#settings-error').scrollIntoView({block:'nearest'})}finally{submit.disabled=false}};
 const invForm=$('#invoice-form');if(invForm){invForm.addEventListener('input',e=>{updateEditorTotal();scheduleDraftSave()});invForm.addEventListener('change',e=>{scheduleDraftSave()});if(draftRestoredPending){draftRestoredPending=false;queueMicrotask(()=>toast('Draft restored — Unsaved changes from before.'))}invForm.onsubmit=async e=>{e.preventDefault();e.submitter.disabled=true;try{const f=new FormData(invForm),lines=readLines();let newId;await commit(s=>{newId=(route.quote?saveQuote:createInvoice)(s,{id:route.id,customerId:f.get('customerId'),date:f.get('date'),due:f.get('due'),notes:f.get('notes'),lines,discount:cents(f.get('discount')||'0'),deposit:cents(f.get('deposit')||'0'),template:f.get('template'),...taxFields(f.get('tax'))})});route={page:route.quote?'quote':'invoice',id:newId};editLines=[];clearDraft();render();window.scrollTo(0,0);toast('Draft saved. Review it before sharing.')}catch(error){$('#invoice-error').textContent=error.message;$('#invoice-error').scrollIntoView({block:'center'});e.submitter.disabled=false}};const select=$('#saved-item');if(select)select.onchange=()=>{try{if(!select.value)return;const item=state.items.find(i=>i.id===select.value);editLines=readLines();const line={description:item.name,quantity:100,price:item.price};if(editLines.length===1&&!editLines[0].description&&editLines[0].price===0)editLines=[line];else if(editLines.length>=100)throw Error('Maximum 100 lines per invoice.');else editLines.push(line);$('#invoice-lines').innerHTML=lineRows();updateEditorTotal();select.value='';scheduleDraftSave()}catch(e){failure(e)}}}
-const invoiceSearch=$('#invoice-search');if(invoiceSearch)invoiceSearch.oninput=()=>{search=invoiceSearch.value;$('#invoice-results').innerHTML=filteredInvoices()};const rf=$('#report-form');if(rf)rf.onsubmit=e=>{e.preventDefault();const start=$('#report-start').value,end=$('#report-end').value;if(!dateOK(start)||!dateOK(end)||end<start||end>today()){toast('Choose a valid date range ending on or before today.');return}reportStart=start;reportEnd=end;render()}}
+const invoiceSearch=$('#invoice-search');if(invoiceSearch)invoiceSearch.oninput=()=>{search=invoiceSearch.value;$('#invoice-results').innerHTML=filteredInvoices()};const rf=$('#report-form');if(rf)rf.onsubmit=e=>{e.preventDefault();const start=$('#report-start').value,end=$('#report-end').value;if(!dateOK(start)||!dateOK(end)||end<start||end>today()){toast('Choose a valid date range ending on or before today.');return}reportStart=start;reportEnd=end;render()};const cf=$('#cashflow-scenarios');if(cf)cf.onsubmit=e=>{e.preventDefault();try{const amt=v=>{const s=String(v).trim();return s?cents(s):0};cashScenarios.latePaymentDays=Math.max(0,Number($('#cf-late').value)||0);cashScenarios.newJobAmount=amt($('#cf-newjob').value);cashScenarios.newJobWeek=Math.max(1,Math.min(13,Number($('#cf-newjob-week').value)||1));cashScenarios.extraExpenseAmount=amt($('#cf-expense').value);cashScenarios.extraExpenseWeek=Math.max(1,Math.min(13,Number($('#cf-expense-week').value)||1));render()}catch(err){toast(err.message)}}}
 modal.addEventListener('click',e=>{if(e.target===modal){const r=modal.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)modal.close()}});
 window.addEventListener('beforeunload',e=>{if(route.page==='editor'){e.preventDefault();e.returnValue=''}});
-async function boot(){try{db=await openDB();try{const saved=localStorage.getItem('invoiceflow-business');if(/^business-[2-5]$/.test(saved||''))mode=saved}catch{}returnMode=mode;state=await load(mode);if(!state)state=emptyState();validateState(state);render();if(globalThis.AppHost){offlineReady=true;offlineState='ready';updateOfflineStatus()}else if(!('serviceWorker'in navigator)){offlineState='unavailable';updateOfflineStatus()}else{navigator.serviceWorker.register('./sw.js').then(async registration=>{const worker=registration.installing||registration.waiting;if(worker&&!['installed','activated'].includes(worker.state)){await new Promise((resolve,reject)=>{worker.addEventListener('statechange',()=>{if(['installed','activated'].includes(worker.state))resolve();else if(worker.state==='redundant')reject(Error('Offline cache installation failed.'))})})}if(registration.waiting)offerUpdate(registration);registration.addEventListener('updatefound',()=>{const next=registration.installing;next?.addEventListener('statechange',()=>{if(next.state==='installed'&&navigator.serviceWorker.controller)offerUpdate(registration)})});await navigator.serviceWorker.ready;const required=['./index.html','./app.js','./core.js','./pdf.js','./vendor/pdf-lib.js','./vendor/fontkit.js','./vendor/DejaVuSans.ttf'];const cached=await Promise.all(required.map(path=>caches.match(new URL(path,location.href).href)));if(cached.some(response=>!response))throw Error('Offline files are incomplete.');offlineReady=true;offlineState='ready';updateOfflineStatus()}).catch(()=>{offlineReady=false;offlineState='unavailable';updateOfflineStatus()})}}catch(e){app.innerHTML=`<div class="error-page"><img src="icon.svg" alt="" width="45"><h1 class="section-gap">We couldn’t open your workspace.</h1><p>${esc(e.message)}</p><p class="muted">No records have been changed. Try reopening this app in a regular browser window. Do not clear site data if you already have records here.</p><button class="btn primary" id="retry">Try again</button></div>`;$('#retry').onclick=()=>location.reload()}}
+async function boot(){try{db=await openDB();try{const saved=localStorage.getItem('invoiceflow-business');if(/^business-[2-5]$/.test(saved||''))mode=saved}catch{}returnMode=mode;state=await load(mode);if(!state)state=emptyState();validateState(state);render();if(globalThis.AppHost){offlineReady=true;offlineState='ready';updateOfflineStatus()}else if(!('serviceWorker'in navigator)){offlineState='unavailable';updateOfflineStatus()}else{navigator.serviceWorker.register('./sw.js').then(async registration=>{const worker=registration.installing||registration.waiting;if(worker&&!['installed','activated'].includes(worker.state)){await new Promise((resolve,reject)=>{worker.addEventListener('statechange',()=>{if(['installed','activated'].includes(worker.state))resolve();else if(worker.state==='redundant')reject(Error('Offline cache installation failed.'))})})}if(registration.waiting)offerUpdate(registration);registration.addEventListener('updatefound',()=>{const next=registration.installing;next?.addEventListener('statechange',()=>{if(next.state==='installed'&&navigator.serviceWorker.controller)offerUpdate(registration)})});await navigator.serviceWorker.ready;const required=['./index.html','./app.js','./core.js','./draft.js','./receipt.js','./pdf.js','./vendor/pdf-lib.js','./vendor/fontkit.js','./vendor/DejaVuSans.ttf'];const cached=await Promise.all(required.map(path=>caches.match(new URL(path,location.href).href)));if(cached.some(response=>!response))throw Error('Offline files are incomplete.');offlineReady=true;offlineState='ready';updateOfflineStatus()}).catch(()=>{offlineReady=false;offlineState='unavailable';updateOfflineStatus()})}}catch(e){app.innerHTML=`<div class="error-page"><img src="icon.svg" alt="" width="45"><h1 class="section-gap">We couldn’t open your workspace.</h1><p>${esc(e.message)}</p><p class="muted">No records have been changed. Try reopening this app in a regular browser window. Do not clear site data if you already have records here.</p><button class="btn primary" id="retry">Try again</button></div>`;$('#retry').onclick=()=>location.reload()}}
 function taxFields(value){return state.business.nonVat?{vatRate:0,taxMode:'none'}:value==='inclusive'?{vatRate:1500,taxMode:'inclusive'}:value==='zero'?{vatRate:0,taxMode:'exclusive'}:value==='exempt'?{vatRate:0,taxMode:'none'}:{vatRate:1500,taxMode:'exclusive'}}
 function pricingFields(i){return `<div class="field section-gap"><label for="invoice-tax">VAT treatment</label><select id="invoice-tax" name="tax" ${state.business.nonVat?'disabled':''}>${[['exclusive','15% VAT · prices exclude VAT'],['inclusive','15% VAT · prices include VAT'],['zero','Zero-rated · 0%'],['exempt','Exempt / no VAT']].map(([v,l])=>`<option value="${v}" ${(i?(i.vatRate===0?(i.taxMode==='none'?'exempt':'zero'):i.taxMode):'exclusive')===v?'selected':''}>${state.business.nonVat?'Non-VAT business':l}</option>`).join('')}</select></div><div class="field"><label for="invoice-discount">Document discount (R, before VAT for exclusive prices)</label><input id="invoice-discount" name="discount" type="number" min="0" step="0.01" value="${decimal(i?.discount||0)}"></div><div class="field"><label for="invoice-deposit">Requested deposit (R, part of total)</label><input id="invoice-deposit" name="deposit" type="number" min="0" step="0.01" value="${decimal(i?.deposit||0)}"></div><div class="field"><label for="invoice-template">Document style</label><select id="invoice-template" name="template">${['classic','minimal','bold'].map(v=>`<option ${i?.template===v?'selected':''}>${v}</option>`).join('')}</select></div><p class="form-note" id="editor-tax">${i?`Net ${money(breakdown(i).net)} · VAT ${money(breakdown(i).vat)}`:'Totals update as you type.'}</p>`}
 function documentBreakdown(i){const b=breakdown(i);return `<div class="summary-row"><span>Subtotal</span><span>${money(b.subtotal)}</span></div>${b.discount?`<div class="summary-row"><span>Discount</span><span>−${money(b.discount)}</span></div>`:''}<div class="summary-row"><span>Value excluding VAT</span><span>${money(b.net)}</span></div><div class="summary-row"><span>VAT ${(i.vatRate||0)/100}%</span><span>${money(b.vat)}</span></div>${i.deposit?`<p class="form-note">Requested deposit: ${money(i.deposit)} (included in the total; received payments are recorded separately).</p>`:''}`}
 function collectionActions(i){return `<section class="panel"><div class="form-section"><h3>Collect & follow up</h3><div class="actions section-gap">${i.state==='issued'&&balance(i)>0?btn('Payment reminder','reminder')+btn('Issue credit note','credit'):''}${btn('Repeat monthly','recurring')}${paid(i)>0?btn('Download receipt','receipt'):''}${btn('Payment link','payment-link')}</div><p class="form-note">Manual follow-ups and payment recording. A link is not proof of payment.</p>${(i.credits||[]).map(c=>`<div class="payment-audit"><strong>${esc(c.number)} · ${money(c.amount)}</strong><p class="form-note">${esc(c.reason)}</p><button class="btn small" data-credit-pdf="${c.id}">Download credit note</button></div>`).join('')}</div></section>`}
-function quotesPage(){return `${heading('Quotes','Agree on the work, then turn acceptance into an invoice.',btn('New quote','new-quote',true,'plus'),'WIN THE NEXT JOB')}<section class="panel">${state.quotes?.length?`<div class="table-wrap"><table><thead><tr><th>Quote / customer</th><th>Valid until</th><th>Status</th><th class="num">Total</th></tr></thead><tbody>${[...state.quotes].reverse().map(q=>`<tr><td><button class="link-button" data-quote-view="${q.id}">${esc(q.number)}</button><div class="muted">${esc(q.customer.name)}</div></td><td>${date(q.due)}</td><td><span class="pill">${q.invoiceId?'Converted':q.state==='sent'&&q.due<today()?'Expired':esc(q.state)}</span></td><td class="num">${money(total(q))}</td></tr>`).join('')}</tbody></table></div>`:empty('invoice','Start with a clear quote','Save a draft, share a PDF, record the customer’s response and convert it once.',btn('New quote','new-quote',true,'plus'))}</section>`}
+function quotesPage(){return `${heading('Quotes','Agree on the work, then turn acceptance into an invoice.',btn('New quote','new-quote',true,'plus')+btn('Co-pilot','copilot',false,'spark'),'WIN THE NEXT JOB')}<section class="panel">${state.quotes?.length?`<div class="table-wrap"><table><thead><tr><th>Quote / customer</th><th>Valid until</th><th>Status</th><th class="num">Total</th></tr></thead><tbody>${[...state.quotes].reverse().map(q=>`<tr><td><button class="link-button" data-quote-view="${q.id}">${esc(q.number)}</button><div class="muted">${esc(q.customer.name)}</div></td><td>${date(q.due)}</td><td><span class="pill">${q.invoiceId?'Converted':q.state==='sent'&&q.due<today()?'Expired':esc(q.state)}</span></td><td class="num">${money(total(q))}</td></tr>`).join('')}</tbody></table></div>`:empty('invoice','Start with a clear quote','Save a draft, share a PDF, record the customer’s response and convert it once.',btn('New quote','new-quote',true,'plus'))}</section>`}
 function quotePage(){const q=state.quotes?.find(q=>q.id===route.id);if(!q)return heading('Quote not found','Choose another quote.');return `${heading(esc(q.number),esc(q.customer.name)+' · '+q.state,btn('All quotes','quotes'))}<div class="toolbar"><div class="actions">${btn('Download quote PDF','quote-pdf',false,'download')}${btn('Share quote text','quote-share')}${q.state==='draft'?btn('Edit quote','edit-quote'):''}${q.state==='draft'?'<button class="btn primary" data-quote-action="sent">Mark shared</button>':q.state==='sent'?'<button class="btn primary" data-quote-action="accepted">Record acceptance</button><button class="btn" data-quote-action="declined">Record decline</button>':q.state==='accepted'?'<button class="btn primary" data-quote-action="convert">'+(q.invoiceId?'Open invoice':'Convert to invoice')+'</button>':''}</div></div><div class="notice">Quote validity ends ${date(q.due)}. Status and acceptance are recorded by you; no online approval or message is sent automatically.</div><section class="panel">${invoiceDocument({...q,kind:'quote'})}</section>`}
 async function quoteAction(action){const q=state.quotes.find(q=>q.id===route.id);if(action==='convert'){let invoiceId;await commit(s=>invoiceId=convertQuote(s,q.id));goto('invoice',{id:invoiceId});return}confirmDialog(action==='accepted'?'Record customer acceptance?':'Update quote status?',`You are recording that the customer ${action==='accepted'?'accepted this quote':action==='declined'?'declined this quote':'was sent this quote'}. Keep the original correspondence separately.`,async()=>{await commit(s=>setQuoteState(s,q.id,action));toast('Quote updated.')},'Record status')}
 function collectionsPage(){const unpaid=state.invoices.filter(i=>i.state==='issued'&&balance(i)>0),top=state.customers.map(c=>({name:c.name,amount:state.invoices.filter(i=>i.customerId===c.id&&i.state==='issued').reduce((a,i)=>a+paid(i),0)})).filter(c=>c.amount).sort((a,b)=>b.amount-a.amount).slice(0,5);return `${heading('Get paid. Stay on top.','Balances are expected income. Recorded payments are actual receipts.',btn('Match bank CSV','bank-import')+btn('Export ageing CSV','ageing-export',false,'download'),'COLLECTIONS')}<div class="stats">${ageing(state).map(b=>stat(b.label,b.amount,'Current unpaid balance','clock')).join('')}</div><section class="panel"><div class="panel-head"><h2>Invoices to follow up</h2></div>${invoiceTable(unpaid)}</section><section class="panel"><div class="panel-head"><h2>Monthly billing schedules</h2></div><div class="form-section"><p class="form-note">Generate one due occurrence at a time while this app is open. Each creates a draft for review, never an automatic send. Missed months remain due until generated. January’s day is retained after February.</p>${(state.recurring||[]).map(r=>{const i=state.invoices.find(i=>i.id===r.sourceId);return `<div class="list-card"><div><strong>${esc(i.number)} · ${esc(i.customer.name)}</strong><p>Next: ${date(r.nextDate)} · ${r.active?'Active':'Paused'}</p></div><div class="actions"><button class="btn small" data-generate="${r.id}" ${!r.active||r.nextDate>today()?'disabled':''}>Generate due draft</button><button class="btn small" data-pause="${r.id}">${r.active?'Pause':'Resume'}</button></div></div>`}).join('')||'<p>No schedules yet. Open an invoice and choose Repeat monthly.</p>'}</div></section><section class="panel"><div class="panel-head"><h2>Top customers by recorded receipts</h2></div><div class="form-section">${top.map(c=>`<div class="summary-row"><span>${esc(c.name)}</span><strong>${money(c.amount)}</strong></div>`).join('')||'<p>No payments recorded yet.</p>'}</div></section>`}
@@ -109,11 +158,10 @@ Object.assign(actions,{
  'new-quote':()=>{if(!state.business.name){goto('settings');toast('Save your business details first.');return}goto('editor',{quote:true})},quotes:()=>goto('quotes'),'edit-quote':()=>goto('editor',{id:route.id,quote:true}),
  'quote-pdf':async()=>pdfDownload({...state.quotes.find(q=>q.id===route.id),kind:'quote'}),
  'quote-share':()=>{const q=state.quotes.find(q=>q.id===route.id);textDialog('Share quote',`Quote ${q.number} from ${q.business.name} for ${q.customer.name}. Total ${money(total(q))}. Valid until ${q.due}. Please reply to confirm acceptance. Download and attach the quote PDF.`)},
- reminder:()=>{const i=state.invoices.find(i=>i.id===route.id);modalForm('Prepare a reminder',`<div class="field"><label for="reminder-tone">Message tone</label><select id="reminder-tone" name="tone"><option value="friendly">Friendly reminder</option><option value="firm">Payment follow-up</option></select></div>`,async f=>{const message=reminderText(i,f.get('tone'));modal.close();textDialog('Payment reminder',message)},'Prepare message')},recurring:recurringDialog,credit:creditDialog,
+ reminder:()=>{const i=state.invoices.find(i=>i.id===route.id);modalForm('Prepare a reminder',`<div class="field"><label for="reminder-tone">Message tone</label><select id="reminder-tone" name="tone"><option value="friendly">Friendly reminder</option><option value="firm">Payment follow-up</option></select></div>`,async f=>{const message=reminderText(i,f.get('tone'));modal.close();textDialog('Payment reminder',message)},'Prepare message')},recurring:recurringDialog,credit:creditDialog,'smart-followup':()=>{try{const follow=smartFollowUp(state,route.id);textDialog('Smart follow-up',follow.message)}catch(e){toast(e.message)}},
  'ageing-export':()=>download(makeCSV([['age_bucket','unpaid_ZAR','as_of'],...ageing(state).map(b=>[b.label,decimal(b.amount),today()])]),`invoiceflow-ageing-${today()}.csv`,'text/csv;charset=utf-8'),
  receipt:async()=>{const i=structuredClone(state.invoices.find(i=>i.id===route.id));i.kind='receipt';await pdfDownload(i)},
- 'payment-link':()=>{const i=state.invoices.find(i=>i.id===route.id);modalForm('Add your provider payment link',`<p class="form-note">Paste a checkout link created in your PayFast or Yoco account. Never paste API keys. InvoiceFlow neither creates the checkout nor verifies settlement.</p><div class="field"><label for="payment-url">HTTPS checkout URL</label><input type="url" id="payment-url" name="url" required value="${esc(i.paymentLink||'')}" placeholder="https://pay.yoco.com/…"></div>`,async f=>{const url=new URL(f.get('url'));if(url.protocol!=='https:'||url.username||url.password||!['pay.yoco.com','payfast.co.za','www.payfast.co.za','payment.payfast.io'].includes(url.hostname))throw Error('Use an HTTPS checkout link from pay.yoco.com, payfast.co.za or payment.payfast.io.');await commit(s=>s.invoices.find(v=>v.id===i.id).paymentLink=url.href);modal.close();textDialog('Share payment link',`${i.number} · Balance ${money(balance(i))}\n${url.href}\nUse reference ${i.number}. Confirm the amount in the provider checkout.`)},'Save link')}
-});
+ 'payment-link':()=>{const i=state.invoices.find(i=>i.id===route.id);modalForm('Add your provider payment link',`<p class="form-note">Paste a checkout link created in your PayFast or Yoco account. Never paste API keys. InvoiceFlow neither creates the checkout nor verifies settlement.</p><div class="field"><label for="payment-url">HTTPS checkout URL</label><input type="url" id="payment-url" name="url" required value="${esc(i.paymentLink||'')}" placeholder="https://pay.yoco.com/…"></div>`,async f=>{const url=new URL(f.get('url'));if(url.protocol!=='https:'||url.username||url.password||!['pay.yoco.com','payfast.co.za','www.payfast.co.za','payment.payfast.io'].includes(url.hostname))throw Error('Use an HTTPS checkout link from pay.yoco.com, payfast.co.za or payment.payfast.io.');await commit(s=>s.invoices.find(v=>v.id===i.id).paymentLink=url.href);modal.close();textDialog('Share payment link',`${i.number} · Balance ${money(balance(i))}\n${url.href}\nUse reference ${i.number}. Confirm the amount in the provider checkout.`)},'Save link')},'cashflow-reset':()=>{Object.keys(cashScenarios).forEach(k=>delete cashScenarios[k]);render()}});
 
 let installPrompt;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e});
@@ -124,56 +172,463 @@ function reviewBankRows(rows){const available=rows.filter(row=>!state.invoices.s
 function previewDocument(){const form=$('#invoice-form');if(!form.reportValidity())return;const f=new FormData(form),temp=structuredClone(state);const invoiceId=(route.quote?saveQuote:createInvoice)(temp,{id:route.id,customerId:f.get('customerId'),date:f.get('date'),due:f.get('due'),notes:f.get('notes'),lines:readLines(),discount:cents(f.get('discount')||'0'),deposit:cents(f.get('deposit')||'0'),template:f.get('template'),...taxFields(f.get('tax'))});validateState(temp);const invoice=(route.quote?temp.quotes:temp.invoices).find(i=>i.id===invoiceId);modalForm('Document preview · unsaved',invoiceDocument({...invoice,kind:route.quote?'quote':undefined}),async()=>{modal.close()},'Back to editor')}
 Object.assign(actions,{businesses:async()=>{if(route.page==='editor'&&!await confirmUnsaved({title:'Switch business?',body:'Your draft is saved on this device and will be here when you return.',confirmLabel:'Switch',cancelLabel:'Stay'}))return;return businessDialog()},'secure-backup':encryptedBackupDialog,'bank-import':bankImportDialog,'preview-document':previewDocument,install:async()=>{if(globalThis.AppHost){toast('InvoiceFlow is already installed.');return}if(installPrompt){await installPrompt.prompt();installPrompt=null;return}modalForm('Install InvoiceFlow',`<p>On Android Chrome, open the browser menu and choose <strong>Install app</strong> or <strong>Add to Home screen</strong>. On iPhone/iPad Safari, use <strong>Share → Add to Home Screen</strong>.</p><p class="form-note">A first online visit is needed to cache app files. Keep backups even when installed. This browser may already have the app installed or may not support installation.</p>`,async()=>modal.close(),'Done')}});
 
-function offerUpdate(registration){const existing=$('#apply-update');if(existing)return;const button=document.createElement('button');button.id='apply-update';button.className='btn small';button.textContent='Apply app update';button.onclick=async()=>{if(route.page==='editor'&&!await confirmUnsaved({title:'Apply update?',body:'The app will reload. Your records are not affected.',confirmLabel:'Apply update',cancelLabel:'Stay'}))return;const worker=registration.waiting;if(!worker)return;let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloaded){reloaded=true;location.reload()}});worker.postMessage({type:'SKIP_WAITING'})};$('.side-bottom')?.prepend(button)}
+function offerUpdate(registration){if(!registration||!registration.waiting)return;const existing=$('#apply-update');if(existing)return;const button=document.createElement('button');button.id='apply-update';button.className='btn small';button.textContent='Apply app update';button.onclick=async()=>{if(route.page==='editor'&&!await confirmUnsaved({title:'Apply update?',body:'The app will reload. Your records are not affected.',confirmLabel:'Apply update',cancelLabel:'Stay'}))return;const worker=registration.waiting;if(!worker)return;let reloaded=false;navigator.serviceWorker.addEventListener('controllerchange',()=>{if(!reloaded){reloaded=true;location.reload()}});worker.postMessage({type:'SKIP_WAITING'})};$('.side-bottom')?.prepend(button)}
 boot();
 
 if(globalThis.AppHost)window.handleAndroidBack=()=>{if(modal.open){modal.close();return true}if(route.page!=='overview'){goto('overview');return true}return false};
 
 if(globalThis.AppHost)window.requestAndroidHome=()=>{goto('overview');return true};
 
+const cashScenarios = {};
+
 function cashFlowPage(){
-  const f = cashFlowForecast(state);
-  const rows = f.weeks.map(w => `<tr><td>Week ${w.week}</td><td>${w.start}</td><td class="num">${money(w.inflows)}</td><td class="num">${money(w.outflows)}</td><td class="num">${money(w.net)}</td><td class="num"><strong>${money(w.balance)}</strong></td></tr>`).join('');
-  return `${heading('13-week cash view','What is coming in, what is going out, and where you stand.','','CASH FLOW')}<div class="stats">${stat('Expected in',f.totalIn,'Next 13 weeks','down',true)}${stat('Expected out',f.totalOut,'Based on recent pattern','up')}${stat('Projected balance',f.endingBalance,'End of period','chart')}${stat('Safe to spend',f.safeToSpend,'Conservative estimate','clock')}</div><div class="panel"><div class="panel-head"><h2>Weekly breakdown</h2></div><div class="table-wrap"><table><thead><tr><th>Week</th><th>Starting</th><th class="num">Inflows</th><th class="num">Outflows</th><th class="num">Net</th><th class="num">Balance</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No data yet</td></tr>'}</tbody></table></div><p class="form-note">Inflows come from open invoices (using due date) and recurring schedules. Outflows use a simple average of recent expenses. This is a forward-looking estimate, not accounting profit. Scenarios (late payment, new job) can be modelled by adjusting due dates or adding drafts.</p></div>`;
+  const f = cashFlowForecast(state, 13, cashScenarios);
+  const actions = cashFlowActions(state, f);
+  const rows = f.weeks.map(w => `<tr><td>Week ${w.week}</td><td>${w.start}</td><td class="num">${money(w.inflows)}</td><td class="num">${money(w.outflows)}</td><td class="num ${w.net<0?'neg':'pos'}">${money(w.net)}</td><td class="num"><strong class="${w.balance<0?'neg':''}">${money(w.balance)}</strong></td></tr>`).join('');
+  const runway = f.runway==null ? 'No shortfall projected' : `Shortfall in week ${f.runway+1}`;
+  return `${heading('13-week cash view','What is coming in, what is going out, and where you stand.','','CASH FLOW')}<div class="stats">${stat('Expected in',f.totalIn,'Next 13 weeks','down',true)}${stat('Expected out',f.totalOut,'Run rate + scenarios','up')}${stat('Projected balance',f.endingBalance,'End of period','chart')}${stat('Safe to spend',f.safeToSpend,runway,'clock')}</div><div class="panel"><div class="panel-head"><h2>Scenarios</h2><span class="small muted">Model what-if changes. Nothing is saved.</span></div><form id="cashflow-scenarios" class="form-grid section-gap"><div class="field"><label for="cf-late">Late payment delay (days)</label><input type="number" id="cf-late" min="0" max="120" step="1" value="${Number(cashScenarios.latePaymentDays)||0}"></div><div class="field"><label for="cf-newjob">New job income (R)</label><input type="number" id="cf-newjob" min="0" step="0.01" value="${decimal(cashScenarios.newJobAmount||0)}"></div><div class="field"><label for="cf-newjob-week">New job week</label><input type="number" id="cf-newjob-week" min="1" max="13" step="1" value="${Number(cashScenarios.newJobWeek)||1}"></div><div class="field"><label for="cf-expense">Delayed expense (R)</label><input type="number" id="cf-expense" min="0" step="0.01" value="${decimal(cashScenarios.extraExpenseAmount||0)}"></div><div class="field"><label for="cf-expense-week">Expense week</label><input type="number" id="cf-expense-week" min="1" max="13" step="1" value="${Number(cashScenarios.extraExpenseWeek)||1}"></div><div class="field"><label>&nbsp;</label><div class="btn-row"><button class="btn primary" type="submit">Apply scenario</button><button class="btn" type="button" data-action="cashflow-reset">Reset</button></div></div></form></div><div class="panel"><div class="panel-head"><h2>Ranked actions</h2></div>${actions.length?`<ul class="list">${actions.map(a=>`<li><div><strong>${esc(a.label)}</strong>${a.amount?`<div class="small muted">${money(a.amount)}</div>`:''}</div></li>`).join('')}</ul>`:empty('check','Nothing urgent','No overdue invoices, due reminders or projected shortfalls.')}</div><div class="panel"><div class="panel-head"><h2>Weekly breakdown</h2></div><div class="table-wrap"><table><thead><tr><th>Week</th><th>Starting</th><th class="num">Inflows</th><th class="num">Outflows</th><th class="num">Net</th><th class="num">Balance</th></tr></thead><tbody>${rows||'<tr><td colspan="6">No data yet</td></tr>'}</tbody></table></div><p class="form-note">Inflows come from open invoice balances (by due date) and projected recurring schedules. Outflows use your 90-day expense run rate plus any scenario. This is a forward-looking estimate, not accounting profit.</p></div>`;
 }
 
-// AI Co-pilot (local parser first)
-function openCopilot() {
-  modalForm('Co-pilot', `
-    <p class="form-note">Describe the work in plain language. Example: "Invoice Salt & Stone for logo design R4500 due in 14 days" or "Quote Northline for retainer R8000".</p>
-    <div class="field"><label for="cmd">What do you need?</label><textarea id="cmd" name="cmd" rows="4" placeholder="Invoice / Quote for [client] for [description] R[amount] due in [days] days" required></textarea></div>
-  `, async f => {
-    const text = f.get('cmd');
-    if (!text.trim()) throw Error('Describe the work first.');
-    const parsed = parseCommand(text, state);
-    if (!parsed.client && !parsed.lines.length) throw Error('Could not extract client or amount. Try including a name and an amount.');
-    await commit(s => {
-      let customer = s.customers.find(c => c.name.toLowerCase().includes((parsed.client||'').toLowerCase()));
-      if (!customer) {
-        customer = { id: id(), name: parsed.client || 'New client', email: '', address: '' };
-        s.customers.push(customer);
-      }
-      const due = addDays(today(), parsed.dueDays || 14);
-      if (!parsed.lines.length || parsed.lines.some(l => !Number.isSafeInteger(l.price) || l.price <= 0)) throw Error('Include a positive amount in rand, for example R4,500.');
-      const lines = parsed.lines.map(l => ({
-        description: l.description || 'Services',
-        quantity: l.qty || 100,
-        price: l.price
-      }));
-      const document = { customerId: customer.id, date: today(), due, lines, notes: '' };
-      if (parsed.type === 'quote') saveQuote(s, document);
-      else createInvoice(s, document);
+// ── AI Co-pilot (Phase 1) ─────────────────────────────────────────────────
+// Deterministic local draft parser first (draft.js). BYOK external AI optional.
+// Everything is additive: traditional form creation is untouched.
+
+// Persistent BYOK preference (stored on device only).
+function copilotByokKey(){return `invoiceflow-copilot-byok-${mode}`}
+function copilotByokEnabled(){try{return localStorage.getItem(copilotByokKey())==='1'}catch{return false}}
+function copilotByokApiKey(){try{return localStorage.getItem(`invoiceflow-copilot-api-key-${mode}`)||''}catch{return ''}}
+function copilotByokSet(enabled,key){try{localStorage.setItem(copilotByokKey(),enabled?'1':'0');if(key)localStorage.setItem(`invoiceflow-copilot-api-key-${mode}`,key)}catch{}}
+function copilotByokEndpoint(){try{return localStorage.getItem(`invoiceflow-copilot-endpoint-${mode}`)||'https://api.openai.com/v1/chat/completions'}catch{return 'https://api.openai.com/v1/chat/completions'}}
+function copilotByokModel(){try{return localStorage.getItem(`invoiceflow-copilot-model-${mode}`)||'gpt-4o-mini'}catch{return 'gpt-4o-mini'}}
+function copilotByokSetEndpoint(v){try{localStorage.setItem(`invoiceflow-copilot-endpoint-${mode}`,v)}catch{}}
+function copilotByokSetModel(v){try{localStorage.setItem(`invoiceflow-copilot-model-${mode}`,v)}catch{}}
+
+const COPILOT_SYSTEM_PROMPT=`You are InvoiceFlow's document drafting assistant. You convert a South African freelancer's plain-language request into a structured invoice or quote draft.
+Rules:
+- Respond with STRICT JSON only. No markdown, no commentary.
+- Amounts are in rand (ZAR). Return line prices and quantities as decimal numbers (e.g. 4500.00, 5).
+- "client" is the customer name. Use the exact spelling from the request.
+- "type" is "invoice" or "quote".
+- "lines" is an array of {description, quantity, price}.
+- "dueDate" is YYYY-MM-DD. Default to 14 days from today if unspecified.
+- "vatMode" is one of "exclusive", "inclusive", "zero", "exempt", or null when unspecified.
+- "notes" is a short string or "".
+- Never invent amounts. If no amount is given, omit the line.
+- Keep descriptions concise and professional.`;
+
+function buildCopilotPrompt(text,ctx){
+  const recent=(ctx.recentInvoices||[]).map(i=>`${i.number} · ${i.customer} · ${i.lines.map(l=>`${l.description} (${l.quantity} × R${(l.price/100).toFixed(2)})`).join('; ')}`).join('\n');
+  return `Today is ${today()}.
+Business: ${ctx.business?.name||''} (${ctx.nonVat?'not VAT registered':'VAT registered'})
+Saved customers: ${(ctx.customers||[]).map(c=>c.name).join(', ')||'none'}
+Saved items: ${(ctx.items||[]).map(i=>`${i.name} — R${(i.price/100).toFixed(2)}`).join(', ')||'none'}
+Recent invoices:
+${recent||'none'}
+
+Request: ${text}`;
+}
+
+async function copilotByokParse(text,ctx,apiKey){
+  const endpoint=copilotByokEndpoint(),model=copilotByokModel();
+  let res;
+  try{
+    res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model,messages:[{role:'system',content:COPILOT_SYSTEM_PROMPT},{role:'user',content:buildCopilotPrompt(text,ctx)}],response_format:{type:'json_object'},temperature:0})});
+  }catch(e){throw Error('Could not reach the AI endpoint. Check your connection, endpoint and key.')}
+  if(!res.ok){const detail=await res.text().catch(()=>'');throw Error(`AI request failed (${res.status}). ${detail.slice(0,160)}`)}
+  const data=await res.json().catch(()=>null);
+  const content=data?.choices?.[0]?.message?.content;
+  if(!content)throw Error('The AI returned no readable draft. Try again or use the local parser.');
+  const cleaned=content.replace(/^```(?:json)?\s*/i,'').replace(/```\s*$/,'').trim();
+  try{return JSON.parse(cleaned)}catch{throw Error('The AI returned unreadable JSON. Try again or use the local parser.')}
+}
+
+// Speech recognition (progressive enhancement — Chrome/Edge on Android).
+function speechSupported(){return !!globalThis.SpeechRecognition || !!globalThis.webkitSpeechRecognition}
+function startSpeech(onResult,onEnd,onError){
+  const Ctor = globalThis.SpeechRecognition || globalThis.webkitSpeechRecognition;
+  if(!Ctor){onError(new Error('Voice input is not available in this browser. Type or paste instead.'));return null}
+  const rec = new Ctor();
+  rec.continuous = false;
+  rec.interimResults = false;
+  rec.lang = 'en-ZA';
+  rec.onresult = e=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;onResult(t)}
+  rec.onend = onEnd;
+  rec.onerror = ev=>onError(new Error('Voice capture failed: '+(ev.error||'unknown')));
+  rec.start();
+  return rec
+}
+
+function stopSpeech(rec){try{rec.stop()}catch{}}
+
+function lineInputHtml(label,name,value,type='text',placeholder='',extra=''){
+  return `<div class="field"><label for="${name}">${esc(label)}</label><input type="${type}" id="${name}" name="${name}" value="${esc(value)}" placeholder="${esc(placeholder)}" ${extra}></div>`
+}
+
+function coPilotModalHTML(phase,rawInput,parsedDraft,parseError,isParsing,ctx,voiceActive){
+  const byok = copilotByokEnabled();
+  const byokKey = copilotByokApiKey();
+  const isQuote = route.quote || route.page === 'quotes';
+
+  const inputStep = `
+    <div class="copilot-step" id="copilot-input">
+      <p class="form-note">Describe the work in plain language. Example: “Invoice Salt &amp; Stone for logo design R4,500 due in 14 days” or “Quote Northline for retainer R8,000”.</p>
+
+      <div class="field section-gap">
+        <label for="copilot-cmd">What do you need?</label>
+        <textarea id="copilot-cmd" name="cmd" rows="4" placeholder="Invoice / Quote for [client] for [description] R[amount] due in [days] days">${esc(rawInput)}</textarea>
+      </div>
+
+      <div class="copilot-inputs">
+        <button type="button" class="btn" id="copilot-voice" ${!speechSupported()?'disabled':''} data-action="copilot-voice">
+          ${voiceActive?icon('clock'):icon('mic')} ${voiceActive?'Listening…':'Voice note'}
+        </button>
+        <button type="button" class="btn" id="copilot-paste" data-action="copilot-paste">${icon('clipboard')}Paste from clipboard</button>
+        <button type="button" class="btn" id="copilot-photo" data-action="copilot-photo">${icon('camera')}Photo of receipt / note</button>
+      </div>
+
+      ${!speechSupported()?`<p class="form-note small muted">Voice input is not available in this browser — type or paste instead.</p>`:''}
+
+      <div class="copilot-ai-toggle section-gap">
+        <label class="check-row"><input type="checkbox" id="copilot-byok" name="byok" ${byok?'checked':''}><span>Use my own AI key for smarter parsing (BYOK · OpenAI-compatible endpoint)</span></label>
+        <div id="copilot-byok-key-wrap" class="${byok?'':'hidden'}">
+          <div class="field">
+            <label for="copilot-byok-key">API key</label>
+            <input type="password" id="copilot-byok-key" name="byokKey" value="${esc(byokKey)}" placeholder="sk-…" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="copilot-byok-endpoint">Endpoint</label>
+            <input type="url" id="copilot-byok-endpoint" name="byokEndpoint" value="${esc(copilotByokEndpoint())}" placeholder="https://api.openai.com/v1/chat/completions">
+          </div>
+          <div class="field">
+            <label for="copilot-byok-model">Model</label>
+            <input type="text" id="copilot-byok-model" name="byokModel" value="${esc(copilotByokModel())}" placeholder="gpt-4o-mini">
+          </div>
+          <p class="form-note small muted">Stored only in this browser. Your key is sent only to the endpoint above.</p>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const reviewStep = () => `
+    <div class="copilot-step" id="copilot-review">
+      <p class="form-note">Review the draft before it is created. Nothing is saved until you confirm.</p>
+
+      <div class="form-grid section-gap">
+        <div class="field">
+          <label for="copilot-doc-type">Document type</label>
+          <select id="copilot-doc-type" name="docType">
+            <option value="invoice" ${parsedDraft.type==='invoice'?'selected':''}>Invoice</option>
+            <option value="quote" ${parsedDraft.type==='quote'?'selected':''}>Quote</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="copilot-client">Client</label>
+          <input type="text" id="copilot-client" name="client" value="${esc(parsedDraft.client)}" ${parsedDraft.clientMatched?'':'title="Not a saved customer — will be added on confirm"'} />
+        </div>
+        <div class="field">
+          <label for="copilot-due">Due date</label>
+          <input type="date" id="copilot-due" name="due" value="${esc(parsedDraft.dueDate)}" />
+        </div>
+        <div class="field">
+          <label for="copilot-vat">VAT treatment</label>
+          <select id="copilot-vat" name="vatMode">
+            <option value="" ${!parsedDraft.vatMode?'selected':''}>Default (business setting)</option>
+            <option value="exclusive" ${parsedDraft.vatMode==='exclusive'?'selected':''}>15% VAT · prices exclude VAT</option>
+            <option value="inclusive" ${parsedDraft.vatMode==='inclusive'?'selected':''}>15% VAT · prices include VAT</option>
+            <option value="zero" ${parsedDraft.vatMode==='zero'?'selected':''}>Zero-rated · 0%</option>
+            <option value="exempt" ${parsedDraft.vatMode==='exempt'?'selected':''}>Exempt / no VAT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field section-gap">
+        <label for="copilot-address">Client address</label>
+        <input type="text" id="copilot-address" name="address" maxlength="1500" value="${esc((ctx.customers.find(c=>c.id===parsedDraft.customerId)||{}).address||'')}" placeholder="Street address, city, postal code" autocomplete="street-address">
+        <p class="form-note small muted">Needed before this document can be marked sent.</p>
+      </div>
+
+      <div class="field section-gap">
+        <label for="copilot-notes">Notes (optional)</label>
+        <textarea id="copilot-notes" name="notes" rows="2">${esc(parsedDraft.notes||'')}</textarea>
+      </div>
+
+      <div class="copilot-lines-wrap section-gap">
+        <div class="panel-head"><h2>Line items</h2></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th><th></th></tr></thead>
+            <tbody id="copilot-lines-body">
+              ${parsedDraft.lines.map((l,i)=>`<tr data-line="${i}">
+                <td><input type="text" class="copilot-line-desc" data-field="description" value="${esc(l.description)}" maxlength="300"></td>
+                <td class="num"><input type="number" class="copilot-line-qty" data-field="quantity" step="0.01" min="0.01" value="${decimal(l.quantity/100)}" style="width:70px"></td>
+                <td class="num"><input type="number" class="copilot-line-price" data-field="price" step="0.01" min="0" value="${decimal(l.price/100)}" style="width:100px"></td>
+                <td class="num"><strong>${money(l.quantity*l.price/10000)}</strong></td>
+                <td><button type="button" class="icon-btn small" data-action="copilot-remove-line" data-line="${i}" aria-label="Remove line">${icon('close')}</button></td>
+              </tr>`).join('')||`<tr><td colspan="5" class="muted">No line items parsed yet. Add one below.</td></tr>`}
+            </tbody>
+          </table>
+        </div>
+        <div class="actions section-gap">
+          <button type="button" class="btn small" data-action="copilot-add-line">+ Add line item</button>
+        </div>
+      </div>
+
+      <div id="copilot-warnings" class="section-gap">
+        ${(parsedDraft.warnings||[]).map(w=>`<p class="form-note small">${esc(w)}</p>`).join('')}
+      </div>
+
+      <div class="dialog-foot">
+        <button type="button" class="btn" data-action="copilot-back">← Back to input</button>
+        <button type="button" class="btn" data-close>Cancel</button>
+        <button class="btn primary" id="copilot-confirm" data-action="copilot-confirm">Create ${parsedDraft.type==='quote'?'quote draft':'invoice draft'}</button>
+      </div>
+    </div>
+  `;
+
+  const errorStep = `
+    <div class="copilot-step" id="copilot-error">
+      <p class="form-note small muted">${esc(parseError||'Could not parse that. Try rewording or add an amount in rand.')}</p>
+      <div class="dialog-foot">
+        <button type="button" class="btn" data-action="copilot-back">← Back to input</button>
+        <button type="button" class="btn" data-close>Cancel</button>
+      </div>
+    </div>
+  `;
+
+  return `
+    <div class="dialog-head">
+      <h2 id="copilot-title">Co-pilot</h2>
+      <button type="button" class="icon-btn" data-close aria-label="Close dialog">${icon('close')}</button>
+    </div>
+    <div class="dialog-body">
+      ${phase==='error'?errorStep:phase==='review'?reviewStep():inputStep}
+    </div>
+    <div class="dialog-foot" id="copilot-foot">
+      ${phase==='input'?`<button type="button" class="btn" data-close>Cancel</button>
+      <button class="btn primary" id="copilot-parse" data-action="copilot-parse" ${isParsing?'disabled':''}>${isParsing?'Parsing…':'Create draft'}</button>`:''}
+    </div>
+  `;
+}
+
+function openCopilot(){
+  const invoker = document.activeElement;
+  let phase = 'input';
+  let rawInput = '';
+  let parsedDraft = null;
+  let parseError = null;
+  let isParsing = false;
+  let voiceActive = false;
+  let speechRec = null;
+
+  const ctx = draftContext(state);
+
+  function renderModal(){
+    modal.setAttribute('aria-labelledby','copilot-title');
+    modal.innerHTML = coPilotModalHTML(phase,rawInput,parsedDraft,parseError,isParsing,ctx,voiceActive);
+    wire();
+    if(invoker&&typeof invoker.focus==='function'){try{invoker.focus({preventScroll:true})}catch{}}
+  }
+
+  function wire(){
+    // Close buttons
+    modal.querySelectorAll('[data-close]').forEach(b=>{b.onclick=()=>{stopSpeech(speechRec);modal.close()}});
+
+    // Voice toggle
+    const vBtn = $('#copilot-voice');
+    if(vBtn){
+      vBtn.onclick=()=>{
+        if(voiceActive){stopSpeech(speechRec);voiceActive=false;speechRec=null;renderModal();return}
+        if(!speechSupported()){toast('Voice input is not available in this browser.');return}
+        voiceActive=true;renderModal();
+        speechRec = startSpeech(
+          (text)=>{const ta=$('#copilot-cmd');if(ta){ta.value=(ta.value?ta.value+' ':'')+text;rawInput=ta.value;}},
+          ()=>{voiceActive=false;speechRec=null;renderModal();},
+          (err)=>{stopSpeech(speechRec);voiceActive=false;speechRec=null;renderModal();toast(err.message||'Voice capture failed.')}
+        );
+      };
+    }
+
+    // Paste from clipboard
+    const pBtn = $('#copilot-paste');
+    if(pBtn){
+      pBtn.onclick=async()=>{
+        try{
+          const text = await navigator.clipboard.readText();
+          if(text){const ta=$('#copilot-cmd');if(ta){ta.value=(ta.value?ta.value+'\n':''+text);rawInput=ta.value;}toast('Pasted from clipboard.')}}
+        catch(e){toast('Could not read clipboard. Paste manually instead.')}
+      };
+    }
+
+    // Photo upload
+    const phBtn = $('#copilot-photo');
+    if(phBtn){
+      phBtn.onclick=()=>{
+        const input = document.createElement('input');
+        input.type='file';input.accept='image/*';input.capture='environment';
+        input.onchange=async e=>{
+          const file = e.target.files?.[0];if(!file)return;
+          if(file.size>2000000){toast('Photo must be under 2 MB.');return}
+          const ab = await file.arrayBuffer();
+          const bytes = new Uint8Array(ab);
+          let b64='';
+          for(let n=0;n<bytes.length;n++)b64+=String.fromCharCode(bytes[n]);
+          const dataURL = `data:${file.type};base64,${btoa(b64)}`;
+          // Show image preview in a small dialog and ask for a caption
+          modalForm('Photo captured',`<div class="field"><img src="${dataURL}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:12px"></div><div class="field"><label for="copilot-photo-caption">Describe what the photo shows</label><textarea id="copilot-photo-caption" name="caption" rows="2" placeholder="e.g. Receipt from ACME Supplies for R450…"></textarea></div><p class="form-note small muted">InvoiceFlow reads text you type. Photos are shown for your reference; nothing is extracted automatically unless you use BYOK AI.</p>`,async f=>{
+            const cap = (f.get('caption')||'').trim();
+            const ta=$('#copilot-cmd');if(ta){ta.value=(ta.value?ta.value+' ':'')+`Photo: ${cap||'receipt/note'}`;rawInput=ta.value;}
+            modal.close();renderModal();
+          },'Add to description');
+        };
+        input.click();
+      };
+    }
+
+    // BYOK toggle
+    const byokBox = $('#copilot-byok');
+    const byokWrap = $('#copilot-byok-key-wrap');
+    if(byokBox&&byokWrap){
+      byokBox.onchange=()=>{copilotByokSet(byokBox.checked,'');byokWrap.classList.toggle('hidden',!byokBox.checked);if(byokBox.checked)$('#copilot-byok-key')?.focus({preventScroll:false})};
+    }
+
+    // Back to input
+    const back = modal.querySelector('[data-action="copilot-back"]');
+    if(back){back.onclick=()=>{phase='input';parseError=null;renderModal()}}
+
+    // Remove line
+    modal.querySelectorAll('[data-action="copilot-remove-line"]').forEach(b=>{
+      b.onclick=()=>{
+        const n = Number(b.dataset.line);
+        parsedDraft.lines.splice(n,1);
+        renderModal();
+      };
     });
-    modal.close();
-    render();
-    toast(parsed.type === 'quote' ? 'Quote draft created. Review it before sending.' : 'Invoice draft created. Review it before issuing.');
-  }, 'Create draft');
+
+    // Add line
+    const addLine = modal.querySelector('[data-action="copilot-add-line"]');
+    if(addLine){
+      addLine.onclick=()=>{
+        parsedDraft.lines.push({description:'',quantity:100,price:0,hasAmount:false});
+        renderModal();
+      };
+    }
+
+    // Line input changes (deferred apply on confirm)
+    const lineBody = $('#copilot-lines-body');
+    if(lineBody){
+      lineBody.addEventListener('input',e=>{
+        const row = e.target.closest('[data-line]');
+        if(!row)return;
+        const n = Number(row.dataset.line);
+        const field = e.target.dataset.field;
+        const val = e.target.value;
+        if(field==='description')parsedDraft.lines[n].description=val.trim();
+        else if(field==='quantity'){const q=Math.round(Number(val)*100);parsedDraft.lines[n].quantity=Number.isSafeInteger(q)&&q>=1?q:100}
+        else if(field==='price'){const p=Math.round(Number(val)*100);parsedDraft.lines[n].price=Number.isSafeInteger(p)&&p>=0?p:0}
+      });
+    }
+
+    // Parse button (input → review)
+    const parseBtn = $('#copilot-parse');
+    if(parseBtn){
+      parseBtn.onclick=async()=>{
+        if(isParsing)return;
+        const ta=$('#copilot-cmd');
+        const text = (ta?ta.value:'').trim()||rawInput;
+        if(!text){toast('Describe the work first.');return}
+        rawInput = text;
+        const useByok = $('#copilot-byok')&&$('#copilot-byok').checked;
+        const apiKey = useByok?($('#copilot-byok-key')?$('#copilot-byok-key').value.trim():''):'';
+        isParsing = true;renderModal();
+        try{
+          let parsed;
+          if(useByok){
+            if(!apiKey)throw Error('Enter your API key to use BYOK parsing.');
+            const endpoint = $('#copilot-byok-endpoint')?.value.trim()||copilotByokEndpoint();
+            const model = $('#copilot-byok-model')?.value.trim()||copilotByokModel();
+            copilotByokSetEndpoint(endpoint);copilotByokSetModel(model);
+            parsed = await copilotByokParse(text,ctx,apiKey);
+            copilotByokSet(true,apiKey);
+          }else{
+            parsed = parseDraft(text,{customers:ctx.customers,items:ctx.items,business:ctx.business});
+            copilotByokSet(false,'');
+          }
+          const normalised = normaliseDraft(parsed,{customers:ctx.customers,items:ctx.items,business:ctx.business});
+          parsedDraft = normalised;
+          phase='review';parseError=null;renderModal();
+        }catch(err){
+          parseError = err.message||'Could not parse that.';
+          phase='error';renderModal();
+        }finally{
+          isParsing=false;renderModal();
+        }
+      };
+    }
+
+    // Confirm button (review → create)
+    const confirmBtn = $('#copilot-confirm');
+    if(confirmBtn){
+      confirmBtn.onclick=async()=>{
+        if(!parsedDraft)return;
+        const docType = $('#copilot-doc-type')?$('#copilot-doc-type').value:'invoice';
+        const client = $('#copilot-client')?$('#copilot-client').value.trim():'';
+        const dueDate = $('#copilot-due')?$('#copilot-due').value:addDays(today(),14);
+        const vatMode = $('#copilot-vat')?$('#copilot-vat').value:null;
+        const notes = $('#copilot-notes')?$('#copilot-notes').value.trim():'';
+        const address = $('#copilot-address')?.value.trim()||'';
+
+        if(!client){toast('Add a client name.');return}
+        if(!dateOK(dueDate)){toast('Choose a valid due date.');return}
+
+        // Rebuild lines from DOM
+        const lines = [];
+        const rows = $('#copilot-lines-body')?.querySelectorAll('[data-line]')||[];
+        for(const row of rows){
+          const descIn = row.querySelector('[data-field="description"]');
+          const qtyIn = row.querySelector('[data-field="quantity"]');
+          const priceIn = row.querySelector('[data-field="price"]');
+          const description = (descIn?descIn.value:'').trim();
+          const quantity = qtyIn?Math.round(Number(qtyIn.value)*100):100;
+          const price = priceIn?Math.round(Number(priceIn.value)*100):0;
+          if(!description)continue;
+          if(!Number.isSafeInteger(price)||price<=0){toast(`“${description}” needs a valid price.`);return}
+          lines.push({description,quantity,price});
+        }
+        if(!lines.length){toast('Add at least one line item.');return}
+
+        const match = scoreClient(client,ctx.customers);
+        const customerId = match.id;
+
+        try{
+          await commit(s=>{
+            let customer = s.customers.find(c=>c.id===customerId);
+            if(customer){
+              if(address) customer.address=address;
+            }else{
+              customer = {id:customerId||id(),name:client,email:'',address};
+              s.customers.push(customer);
+            }
+            const document = {customerId:customer.id,date:today(),due:dueDate,lines,notes};
+            if(docType==='quote')saveQuote(s,document);
+            else createInvoice(s,document);
+          });
+          stopSpeech(speechRec);
+          modal.close();
+          render();
+          toast(docType==='quote'?'Quote draft created. Review it before sending.':'Invoice draft created. Review it before issuing.');
+        }catch(err){
+          failure(err);
+        }
+      };
+    }
+  }
+
+  modal.showModal();
+  renderModal();
 }
 
-// Add action
-if (typeof actions !== 'undefined') {
-  actions.copilot = openCopilot;
-}
-Object.assign(actions, { copilot: openCopilot });
-Object.assign(actions, { copilot: openCopilot });
-Object.assign(actions, { 'new-expense-photo': () => expenseDialog() });
+Object.assign(actions,{copilot:openCopilot});
+
+// ── End AI Co-pilot ───────────────────────────────────────────────────────
+
+Object.assign(actions, { 'new-expense-photo': () => expensePhotoDialog() });
