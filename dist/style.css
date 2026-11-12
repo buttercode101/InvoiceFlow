@@ -17,7 +17,7 @@
 @media(max-width:767px){.line-description{grid-column:1/-1}.mobile-field-label{display:block;font-size:11px;font-weight:600;color:var(--muted)}.invoice-line .line-desc{grid-column:auto}.invoice-line>.icon-btn{align-self:end}.line-result .line-total{padding-top:11px;min-height:43px}.invoice-line input,input,select,textarea{font-size:16px}.btn.small,.filter,.link-button{min-height:44px}.sidebar{overflow-y:visible}.list-card{flex-wrap:wrap}.list-card>.text-right{max-width:100%}.dialog-head h2{font-size:18px}.dialog-head{gap:14px}.dialog-head .icon-btn{flex:none}}
 
 /* Document themes share the same accessible structure and print layout. */
-.template-minimal .invoice-top{border-bottom:2px solid #222;padding-bottom:24px}.template-minimal .invoice-title{color:#222}.template-bold .invoice-top{background:#1e387a;color:#fff;padding:22px;border-radius:8px}.template-bold .invoice-title,.template-bold .invoice-top .address,.template-bold .invoice-top .doc-label{color:inherit}.stats:has(> :nth-child(5)){grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}.pill.credited{background:#e3e9f4;color:#243d71}.dialog-body .table-wrap{max-width:100%}.dialog-body td,.dialog-body th{padding:10px}.actions{row-gap:10px}select,input,textarea{max-width:100%}.neg{color:var(--red)}.pos{color:var(--accent)}.pill.invoice{background:var(--accent-soft);color:var(--accent)}.pill.payment{background:#e7f2e5;color:#35643c}.pill.credit,.pill.reversal{background:#fbe9e5;color:#a34432}
+.template-minimal .invoice-top{border-bottom:2px solid #222;padding-bottom:24px}.template-minimal .invoice-title{color:#222}.template-bold .invoice-top{background:#1e387a;color:#fff;padding:22px;border-radius:8px}.template-bold .invoice-title,.template-bold .invoice-top .address,.template-bold .invoice-top .doc-label{color:inherit}.stats:has(> :nth-child(5)){grid-template-columns:repeat(auto-fit,minmax(min(100%,170px),1fr))}.pill.credited{background:#e3e9f4;color:#243d71}.dialog-body .table-wrap{max-width:100%}.dialog-body td,.dialog-body th{padding:10px}.actions{row-gap:10px}select,input,textarea{max-width:100%}.neg{color:var(--red)}.pos{color:var(--accent)}.pill.invoice{background:var(--accent-soft);color:var(--accent)}.pill.payment{background:#e7f2e5;color:#35643c}.pill.credit,.pill.reversal{background:#fbe9e5;color:#a34432}.pill.followup{background:#fdf3e7;color:#9a5c17}
 
 /* Keep complete currency figures readable at every card breakpoint. */
 .stats,.stats:has(> :nth-child(5)){grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr))}
@@ -45,3 +45,14 @@
 .copilot-lines-wrap .icon-btn{min-width:34px;padding:7px}
 .copilot-voice-active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent)}
 @media(max-width:767px){.copilot-inputs{flex-direction:column}.copilot-inputs .btn{width:100%}}
+.brief-panel{margin-bottom:18px}
+.brief-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.brief-list li{display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid var(--border)}
+.brief-list li:last-child{border-bottom:0}
+.brief-icon{flex:0 0 auto;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--soft);color:var(--muted)}
+.brief-warn .brief-icon{background:var(--accent-soft);color:var(--accent)}
+.brief-good .brief-icon{background:var(--accent-soft);color:var(--bright)}
+.brief-body{flex:1;min-width:0}
+.brief-body strong{display:block;font-weight:600;font-size:14px}
+.brief-list .btn{flex:0 0 auto}
+@media(max-width:560px){.brief-list li{flex-wrap:wrap;gap:10px}.brief-list .btn{width:100%;margin-top:6px}}

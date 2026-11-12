@@ -17,16 +17,16 @@ export function cashSummary(s,start='1900-01-01',end='2199-12-31'){const invoice
 export const id=()=>{if(globalThis.crypto?.randomUUID)return globalThis.crypto.randomUUID();if(!globalThis.crypto?.getRandomValues)throw Error('Secure record IDs are unavailable. Open this app in a current browser.');const bytes=globalThis.crypto.getRandomValues(new Uint8Array(16));bytes[6]=(bytes[6]&15)|64;bytes[8]=(bytes[8]&63)|128;const hex=[...bytes].map(b=>b.toString(16).padStart(2,'0')).join('');return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`};
 export function emptyState(){return {version:VERSION,revision:0,business:{name:'',email:'',address:'',phone:'',bank:'',notes:'Thank you for your business.',nonVat:true},customers:[],items:[],invoices:[],expenses:[],nextNumber:1,lastBackupAt:null}}
 export function backupAgeDays(s,now=new Date()){if(!s?.lastBackupAt)return null;const t=Date.parse(s.lastBackupAt);if(!Number.isFinite(t))return null;return Math.max(0,Math.floor((now.getTime()-t)/86400000))}
-export function createInvoice(s,data){if(!s.business.name.trim())throw Error('Save your business details in Settings first.');const customer=s.customers.find(c=>c.id===data.customerId);if(!customer)throw Error('Choose a customer.');if(!dateOK(data.date)||!dateOK(data.due)||data.due<data.date)throw Error('Due date must be on or after the invoice date.');if(!data.lines.length||data.lines.length>100)throw Error('An invoice needs between 1 and 100 line items.');data.lines.forEach(checkLine);const existing=data.id?s.invoices.find(i=>i.id===data.id):null;if(data.id&&!existing)throw Error('Invoice no longer exists.');if(existing&&existing.state!=='draft')throw Error('Issued invoices are locked.');const invoice={id:existing?.id||id(),number:existing?.number||`INV-${String(s.nextNumber).padStart(4,'0')}`,customerId:customer.id,customer:structuredClone(customer),business:structuredClone(s.business),date:data.date,due:data.due,lines:structuredClone(data.lines),notes:clean(data.notes,3000),discount:data.discount??0,vatRate:s.business.nonVat?0:(data.vatRate??1500),taxMode:s.business.nonVat?'none':(data.taxMode||'exclusive'),template:data.template||'classic',deposit:data.deposit??0,state:'draft',payments:[],createdAt:existing?.createdAt||new Date().toISOString()};if(total(invoice)<=0)throw Error('Invoice total must be greater than zero.');if(existing)s.invoices[s.invoices.indexOf(existing)]=invoice;else{s.invoices.push(invoice);s.nextNumber++}return invoice.id}
+export function createInvoice(s,data){if(!s.business.name.trim())throw Error('Save your business details in Settings first.');const customer=s.customers.find(c=>c.id===data.customerId);if(!customer)throw Error('Choose a customer.');if(!dateOK(data.date)||!dateOK(data.due)||data.due<data.date)throw Error('Due date must be on or after the invoice date.');if(!data.lines.length||data.lines.length>100)throw Error('An invoice needs between 1 and 100 line items.');data.lines.forEach(checkLine);const existing=data.id?s.invoices.find(i=>i.id===data.id):null;if(data.id&&!existing)throw Error('Invoice no longer exists.');if(existing&&existing.state!=='draft')throw Error('Issued invoices are locked.');const invoice={id:existing?.id||id(),number:existing?.number||`INV-${String(s.nextNumber).padStart(4,'0')}`,customerId:customer.id,customer:structuredClone(customer),business:structuredClone(s.business),date:data.date,due:data.due,lines:structuredClone(data.lines),notes:clean(data.notes,3000),discount:data.discount??0,vatRate:s.business.nonVat?0:(data.vatRate??1500),taxMode:s.business.nonVat?'none':(data.taxMode||'exclusive'),template:data.template||'classic',deposit:data.deposit??0,state:'draft',payments:[],followUps:[],createdAt:existing?.createdAt||new Date().toISOString()};if(total(invoice)<=0)throw Error('Invoice total must be greater than zero.');if(existing)s.invoices[s.invoices.indexOf(existing)]=invoice;else{s.invoices.push(invoice);s.nextNumber++}return invoice.id}
 export function issueInvoice(s,invoiceId){const i=s.invoices.find(i=>i.id===invoiceId);if(!i||i.state!=='draft')throw Error('Only drafts can be marked sent.');if(i.date>today())throw Error('A future-dated invoice cannot be marked sent yet.');if(!i.business.name.trim()||!i.business.address.trim())throw Error('Add your business name and address in Settings, then edit and save this draft before marking sent.');if(!i.customer.address.trim())throw Error('Add a customer address before marking sent. Edit this draft after updating the customer.');i.state='issued';i.issuedAt=new Date().toISOString()}
-export function recordPayment(s,invoiceId,data){const i=s.invoices.find(i=>i.id===invoiceId);if(!i||i.state!=='issued')throw Error('Mark this invoice sent before recording a payment.');if(!dateOK(data.date)||data.date<i.date||data.date>today())throw Error('Payment date must be between the invoice date and today.');if(!Number.isSafeInteger(data.amount)||data.amount<=0||data.amount>balance(i))throw Error('Payment must be greater than zero and no more than the balance.');i.payments.push({id:id(),amount:data.amount,date:data.date,reference:clean(data.reference,150)})}
+export function recordPayment(s,invoiceId,data){const i=s.invoices.find(i=>i.id===invoiceId);if(!i||i.state!=='issued')throw Error('Mark this invoice sent before recording a payment.');if(!dateOK(data.date)||data.date<i.date||data.date>today())throw Error('Payment date must be between the invoice date and today.');if(!Number.isSafeInteger(data.amount)||data.amount<=0||data.amount>balance(i))throw Error('Payment must be greater than zero and no more than the balance.');i.payments.push({id:id(),amount:data.amount,date:data.date,reference:clean(data.reference,150)});if(Array.isArray(i.followUps))for(const f of i.followUps)if(f.outcome==='pending'){f.outcome='paid';f.paidAt=data.date;}}
 export function reversePayment(s,invoiceId,paymentId,reason){const i=s.invoices.find(i=>i.id===invoiceId);const p=i?.payments.find(p=>p.id===paymentId);if(!i||i.state!=='issued'||!p||p.reversed)throw Error('Only active payments on issued invoices can be reversed.');reason=clean(reason,300);if(!reason)throw Error('Add a reason for correcting this entry.');p.reversed=true;p.reversalReason=reason;p.reversedAt=new Date().toISOString()}
 export function replaceWorkspaceContents(target,incoming){validateState(incoming);const revision=target.revision,nextNumber=Math.max(target.nextNumber,incoming.nextNumber),nextQuote=Math.max(target.nextQuote||1,incoming.nextQuote||1),nextCredit=Math.max(target.nextCredit||1,incoming.nextCredit||1),copy=structuredClone(incoming);Object.keys(target).forEach(k=>delete target[k]);Object.assign(target,copy,{revision,nextNumber,nextQuote,nextCredit});return target}
 export function parseBackup(text){if(typeof text!=='string'||new TextEncoder().encode(text).byteLength>MAX_BACKUP_BYTES)throw Error('Choose a backup smaller than 10 MB.');let data;try{data=JSON.parse(text)}catch{throw Error('This is not valid JSON. Choose an InvoiceFlow backup.')}if(data?.app!=='InvoiceFlow')throw Error('Choose an InvoiceFlow JSON backup.');validateState(data.state);return data}
 export function voidInvoice(s,invoiceId){const i=s.invoices.find(i=>i.id===invoiceId);if(!i||i.state!=='issued'||paid(i)>0||credited(i)>0)throw Error('Only unpaid issued invoices without credit notes can be voided.');i.state='void'}
 export function clean(v,max=300){if(typeof v!=='string'||v.length>max)throw Error(`Text must contain at most ${max} characters.`);return v.trim()}
 function checkLine(l){if(!l||!clean(l.description,300)||!Number.isSafeInteger(l.quantity)||l.quantity<1||l.quantity>100000000||!Number.isSafeInteger(l.price)||l.price<0||l.price>10000000000)throw Error('Invalid invoice line. Check description, quantity and price.');lineTotal(l)}
-export function checkExpense(e){if(!e||typeof e.id!=='string'||!clean(e.description,300)||!dateOK(e.date)||e.date>today()||!Number.isSafeInteger(e.amount)||e.amount<=0||e.amount>10000000000||!CATEGORIES.includes(e.category))throw Error('Invalid expense. Use a date up to today, a positive amount and a listed category.');if(e.receipt!==undefined)validateReceipt(e.receipt);return e}
+export function checkExpense(e){if(!e||typeof e.id!=='string'||!clean(e.description,300)||!dateOK(e.date)||e.date>today()||!Number.isSafeInteger(e.amount)||e.amount<=0||e.amount>10000000000||!CATEGORIES.includes(e.category))throw Error('Invalid expense. Use a date up to today, a positive amount and a listed category.');if(e.vatAmount!==undefined&&e.vatAmount!==null&&(!Number.isSafeInteger(e.vatAmount)||e.vatAmount<0||e.vatAmount>e.amount))throw Error('VAT amount must be a whole number of cents between zero and the expense amount.');if(e.receipt!==undefined)validateReceipt(e.receipt);return e}
 function checkParty(c,business=false){if(!c||!clean(c.name,200)||typeof c.email!=='string'||c.email.length>254||(c.email&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(c.email)))throw Error('Invalid name or email.');clean(c.address,1500);if(c.vatNumber!==undefined&&c.vatNumber!==''&&!/^4\d{9}$/.test(c.vatNumber))throw Error('VAT number must be 10 digits starting with 4.');if(business){clean(c.phone,100);clean(c.bank,1500);clean(c.notes,3000);if(typeof c.nonVat!=='boolean')throw Error('Choose your VAT registration status.');if(!c.nonVat&&!/^4\d{9}$/.test(c.vatNumber||''))throw Error('A VAT-registered business needs a valid VAT number.')}}
 export function validateState(s){if(s?.lastBackupAt!==undefined&&s.lastBackupAt!==null&&(typeof s.lastBackupAt!=='string'||!Number.isFinite(Date.parse(s.lastBackupAt))))throw Error('Invalid backup timestamp.');if(!s||s.version!==VERSION||!Number.isSafeInteger(s.revision)||s.revision<0||!Number.isSafeInteger(s.nextNumber)||s.nextNumber<1||s.nextNumber>100000000)throw Error('Unsupported or invalid backup format.');if(!s.business||typeof s.business!=='object'||Array.isArray(s.business)||typeof s.business.name!=='string')throw Error('Invalid business details in backup.');if(s.business.name)checkParty(s.business,true);else{if(JSON.stringify(s.business)!==JSON.stringify(emptyState().business))throw Error('Invalid business details.');}for(const k of ['customers','items','invoices','expenses']){if(!Array.isArray(s[k])||s[k].length>10000)throw Error('Backup is too large or incomplete.');const ids=new Set();for(const e of s[k]){if(!e||typeof e.id!=='string'||!/^[-_a-zA-Z0-9]{1,100}$/.test(e.id)||ids.has(e.id))throw Error('Invalid or duplicate record ID.');ids.add(e.id)}}s.customers.forEach(c=>checkParty(c));s.items.forEach(i=>{if(!clean(i.name,300)||!Number.isSafeInteger(i.price)||i.price<0||i.price>10000000000)throw Error('Invalid saved item.')});const numbers=new Set();for(const i of s.invoices){if(i.kind!==undefined||i.creditBreakdown!==undefined)throw Error('Invalid stored invoice document metadata.');if(typeof i.number!=='string'||!/^INV-\d{4,9}$/.test(i.number)||numbers.has(i.number)||Number(i.number.slice(4))<1||i.number!==`INV-${String(Number(i.number.slice(4))).padStart(4,'0')}`||Number(i.number.slice(4))>=s.nextNumber||typeof i.customerId!=='string'||!/^[-_a-zA-Z0-9]{1,100}$/.test(i.customerId)||!['draft','issued','void'].includes(i.state)||!dateOK(i.date)||!dateOK(i.due)||i.due<i.date||!Array.isArray(i.lines)||!i.lines.length||i.lines.length>100||!Array.isArray(i.payments)||i.payments.length>10000)throw Error('Invalid invoice in backup.');numbers.add(i.number);checkParty(i.customer);checkParty(i.business,true);if(i.state!=='draft'&&(i.date>today()||!i.business.address.trim()||!i.customer.address.trim()))throw Error('Issued invoices need valid dates and complete business and customer addresses.');if(i.state==='draft'&&i.payments.length)throw Error('Draft invoices cannot contain payment history.');clean(i.notes,3000);i.lines.forEach(checkLine);if(total(i)<=0)throw Error('Invoice total must be positive.');const pids=new Set();for(const p of i.payments){if(typeof p.id!=='string'||!/^[-_a-zA-Z0-9]{1,100}$/.test(p.id)||pids.has(p.id)||!dateOK(p.date)||p.date<i.date||p.date>today()||!Number.isSafeInteger(p.amount)||p.amount<=0||p.amount>10000000000)throw Error('Invalid payment in backup.');pids.add(p.id);clean(p.reference,150);if(p.reversed!==undefined&&typeof p.reversed!=='boolean')throw Error('Invalid reversal flag.');if(p.reversed){if(!clean(p.reversalReason,300)||typeof p.reversedAt!=='string'||!Number.isFinite(Date.parse(p.reversedAt)))throw Error('Invalid payment reversal in backup.')}}validateInvoiceOptions(i);if(paid(i)+credited(i)>total(i)||((i.state==='draft'||i.state==='void')&&paid(i)>0))throw Error('Invalid payment balance in backup.')}s.expenses.forEach(checkExpense);validateExtensions(s);return s}
 export function parseCSV(text){if(typeof text!=='string'||text.length>2000000)throw Error('CSV must be smaller than 2 MB.');text=text.replace(/^\uFEFF/,'');let rows=[],row=[],field='',quoted=false,closed=false;for(let n=0;n<text.length;n++){let c=text[n];if(quoted){if(c==='"'&&text[n+1]==='"'){field+='"';n++}else if(c==='"'){quoted=false;closed=true}else field+=c;}else if(c==='"'){if(field||closed)throw Error('Malformed quote in CSV.');quoted=true;}else if(c===','){row.push(field);field='';closed=false;}else if(c==='\r'||c==='\n'){if(c==='\r'&&text[n+1]==='\n')n++;row.push(field);if(row.some(v=>v.trim()))rows.push(row);row=[];field='';closed=false;}else{if(closed&&c.trim())throw Error('Unexpected text after a quoted CSV value.');if(!closed)field+=c;}}if(quoted)throw Error('Unclosed quote in CSV.');row.push(field);if(row.some(v=>v.trim()))rows.push(row);if(!rows.length)throw Error('CSV is empty.');return rows}
@@ -216,7 +216,7 @@ export function parseCommand(text, state) {
 export function clientScore(state, customerId) {
   const invoices = (state.invoices || []).filter(i => i.customer?.id === customerId && i.state === 'issued');
   if (!invoices.length) return { avgDays: null, reliability: 'new', count: 0 };
-  let totalDays = 0, paid = 0;
+  let totalDays = 0, paid = 0, followUpsPaid = 0;
   for (const inv of invoices) {
     // Reversed entries are audit history, not real receipts; use the earliest active receipt.
     const p = (inv.payments || []).filter(p => p.amount > 0 && !p.reversed).sort((a,b) => a.date.localeCompare(b.date))[0];
@@ -224,12 +224,14 @@ export function clientScore(state, customerId) {
       const days = Math.round((Date.parse(p.date + 'T12:00:00Z') - Date.parse(inv.date + 'T12:00:00Z')) / 86400000);
       totalDays += Math.max(0, days);
       paid++;
+      if((inv.followUps||[]).some(f=>f.outcome==='paid'))followUpsPaid++;
     }
   }
   const avg = paid ? Math.round(totalDays / paid) : null;
   let reliability = 'new';
   if (paid >= 2) reliability = avg <= 14 ? 'excellent' : avg <= 30 ? 'good' : 'slow';
-  return { avgDays: avg, reliability, count: invoices.length };
+  else if (followUpsPaid >= 1) reliability = 'good';
+  return { avgDays: avg, reliability, count: invoices.length, followUpsPaid };
 }
 
 // Full per-customer picture: payment behaviour plus a complete activity timeline.
@@ -249,6 +251,7 @@ export function clientIntelligence(state, customerId) {
       if (p.reversed) events.push({ date: (p.reversedAt || p.date).slice(0, 10), kind: 'reversal', ref: i.number, amount: -p.amount, detail: p.reversalReason || 'Payment reversed' });
     }
     for (const c of (i.credits || [])) events.push({ date: c.date, kind: 'credit', ref: c.number, amount: -c.amount, detail: c.reason || 'Credit note' });
+    for (const f of (i.followUps || [])) events.push({ date: f.date, kind: 'followup', ref: i.number, amount: 0, detail: f.outcome==='paid'?(f.paidAt?'Follow-up resolved · paid':'Follow-up honoured'):'Follow-up sent' });
   }
   events.sort((a, b) => a.date.localeCompare(b.date));
   return { customer, score, totalBilled, totalPaid, totalCredited, outstanding, count: invoices.length, events };
@@ -272,4 +275,35 @@ export function smartFollowUp(state, customerId) {
     message, invoiceId: target.id, number: target.number, balance: balance(target),
     overdueCount: overdue.length, openCount: open.length, totalOpen
   };
+}
+
+// SARS VAT201 working summary. Output VAT from issued invoices in the period,
+// input VAT from expenses that recorded a VAT amount. A working draft for
+// manual eFiling — InvoiceFlow never submits to SARS and never sends this data
+// anywhere. Period is the invoice/expense date, not the payment date.
+export function vat201Report(state,start,end){
+  let output=0,input=0,invoices=0,expenses=0;
+  for(const i of (state.invoices||[])){
+    if(i.state!=='issued'||i.date<start||i.date>end)continue;
+    output+=breakdown(i).vat||0;invoices++;
+  }
+  for(const e of (state.expenses||[])){
+    if(e.date<start||e.date>end)continue;
+    input+=e.vatAmount||0;expenses++;
+  }
+  return {start,end,output,input,net:output-input,invoices,expenses};
+}
+
+// CIPC annual return reminder. The registration number encodes the
+// incorporation year (e.g. 2023/123456/07); we estimate the next return as
+// end of the current calendar year — confirm the exact anniversary date on
+// the CIPC website.
+export function cipcNextReturn(state,now=new Date()){
+  const reg=state.business?.cipcRegistration;
+  if(!reg)return null;
+  const m=String(reg).match(/^(\d{4})/);
+  if(!m)return null;
+  const y=now.getFullYear();let next=new Date(y,11,31);if(next<now)next=new Date(y+1,11,31);
+  const days=Math.round((next.getTime()-now.getTime())/86400000);
+  return {registration:reg,due:next.toISOString().slice(0,10),days};
 }
