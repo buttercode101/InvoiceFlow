@@ -129,7 +129,7 @@ export function cashFlowForecast(state, weeks = 13, scenarios = {}) {
 
   // Expenses (recent average monthly / 4 for weekly)
   const recentExpenses = (state.expenses || []).filter(e => e.date >= addDays(todayStr, -90));
-  const avgWeeklyExpense = recentExpenses.reduce((a, e) => a + (e.amount || 0), 0) / Math.max(1, Math.ceil(recentExpenses.length / 4) || 13);
+  const avgWeeklyExpense = recentExpenses.reduce((a, e) => a + (e.amount || 0), 0) / 13;
   for (const b of buckets) b.outflows += Math.round(avgWeeklyExpense);
 
   // Running balance
@@ -151,22 +151,23 @@ export function cashFlowForecast(state, weeks = 13, scenarios = {}) {
 
 // Simple local command parser for AI co-pilot (no external dependency)
 export function parseCommand(text, state) {
-  const t = text.toLowerCase().trim();
-  const result = { type: 'invoice', client: '', lines: [], dueDays: 14, notes: '' };
-  // Extract client name (after "for" or "to")
-  const clientMatch = t.match(/(?:for|to)\s+([a-z0-9 &]+?)(?:\s+(?:for|at|due|plus|and)|$)/i);
-  if (clientMatch) result.client = clientMatch[1].trim();
-  // Extract amount
-  const amountMatch = t.match(/r?\s*(\d+(?:[.,]\d+)?)/i);
+  if (typeof text !== 'string' || !text.trim() || text.length > 2000) throw Error('Describe the work in 2,000 characters or fewer.');
+  const raw = text.trim();
+  const result = { type: /\bquote\b/i.test(raw) ? 'quote' : 'invoice', client: '', lines: [], dueDays: 14, notes: '' };
+  // A client is the phrase after "for/to" and before the work description or amount.
+  const clientMatch = raw.match(/\b(?:for|to)\s+(.+?)(?=\s+for\b|\s+at\b|\s+due\b|\s+R\s*\d|$)/i);
+  if (clientMatch) result.client = clientMatch[1].trim().replace(/[.,;]+$/, '');
+  const amountMatch = raw.match(/\bR\s*(\d[\d,]*(?:\.\d{1,2})?)/i) || raw.match(/\b(\d[\d,]*(?:\.\d{1,2})?)\s*(?:ZAR|rand(?:s)?)\b/i);
   if (amountMatch) {
-    const amt = Math.round(parseFloat(amountMatch[1].replace(',', '.')) * 100);
-    result.lines.push({ description: 'Services', qty: 1, price: amt });
+    const amount = Number(amountMatch[1].replaceAll(',', ''));
+    if (!Number.isFinite(amount) || amount <= 0 || !Number.isSafeInteger(Math.round(amount * 100))) throw Error('Enter a valid positive amount in rand.');
+    const afterClient = clientMatch ? raw.slice(clientMatch.index + clientMatch[0].length) : raw;
+    const descriptionMatch = afterClient.match(/\bfor\s+(.+?)(?=\s+R\s*\d|\s+due\b|$)/i);
+    const description = descriptionMatch?.[1]?.trim().replace(/[.,;]+$/, '') || 'Services';
+    result.lines.push({ description, qty: 100, price: Math.round(amount * 100) });
   }
-  // Due days
-  const dueMatch = t.match(/(\d+)\s*days?/i);
-  if (dueMatch) result.dueDays = parseInt(dueMatch[1], 10);
-  // Quote detection
-  if (t.includes('quote')) result.type = 'quote';
+  const dueMatch = raw.match(/\bdue(?:\s+in)?\s+(\d+)\s*days?\b/i);
+  if (dueMatch) result.dueDays = Math.min(3650, Math.max(1, Number(dueMatch[1])));
   return result;
 }
 
@@ -176,9 +177,10 @@ export function clientScore(state, customerId) {
   if (!invoices.length) return { avgDays: null, reliability: 'new', count: 0 };
   let totalDays = 0, paid = 0;
   for (const inv of invoices) {
-    const p = (inv.payments || []).find(p => p.amount > 0);
-    if (p && inv.date) {
-      const days = Math.round((new Date(p.date) - new Date(inv.date)) / 86400000);
+    // Reversed entries are audit history, not real receipts; use the earliest active receipt.
+    const p = (inv.payments || []).filter(p => p.amount > 0 && !p.reversed).sort((a,b) => a.date.localeCompare(b.date))[0];
+    if (p && inv.date && dateOK(p.date) && dateOK(inv.date)) {
+      const days = Math.round((Date.parse(p.date + 'T12:00:00Z') - Date.parse(inv.date + 'T12:00:00Z')) / 86400000);
       totalDays += Math.max(0, days);
       paid++;
     }
