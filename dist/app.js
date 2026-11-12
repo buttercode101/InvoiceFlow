@@ -164,16 +164,10 @@ function openCopilot() {
   }, 'Create draft');
 }
 
-// Wire co-pilot button into overview heading
-const originalOverview = overview;
-overview = function() {
-  const base = originalOverview();
-  return base.replace('New invoice', 'New invoice</button><button class="btn" data-action="copilot">Co-pilot');
-};
-
 // Add action
 if (typeof actions !== 'undefined') {
   actions.copilot = openCopilot;
 }
+Object.assign(actions, { copilot: openCopilot });
 Object.assign(actions, { copilot: openCopilot });
 Object.assign(actions, { 'new-expense-photo': () => expenseDialog() });
