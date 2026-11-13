@@ -49,31 +49,31 @@
   },
   {
     "page": "overview",
-    "control": "view:ffc605f0-a90e-4fb0-bb9d-5cf12702e43e",
+    "control": "view:12bf2edd-3aa4-4cb7-96b8-e84d94b425af",
     "outcome": "SKIP",
     "detail": "element gone after nav"
   },
   {
     "page": "overview",
-    "control": "view:39665ce5-b561-4690-8bc2-b8d92be34616",
+    "control": "view:a10aeede-412f-4aa6-ac89-ed4b64a06f05",
     "outcome": "SKIP",
     "detail": "element gone after nav"
   },
   {
     "page": "overview",
-    "control": "view:592b47ec-ddeb-4766-b80b-40459f404f3a",
+    "control": "view:bbda7613-9f4b-46c6-bf10-16f9f6e81cb4",
     "outcome": "SKIP",
     "detail": "element gone after nav"
   },
   {
     "page": "overview",
-    "control": "view:e3a165cb-636d-4446-8199-69067652ccc2",
+    "control": "view:e0aa9486-fedc-47f7-b121-d5f21d8f3b3d",
     "outcome": "SKIP",
     "detail": "element gone after nav"
   },
   {
     "page": "overview",
-    "control": "view:055353ab-305b-4dd8-a263-e31b92b61916",
+    "control": "view:8b1d0108-7739-4a5b-86f0-a9f6248ece19",
     "outcome": "SKIP",
     "detail": "element gone after nav"
   },
@@ -92,8 +92,8 @@
   {
     "page": "invoices",
     "control": "action:new-invoice",
-    "outcome": "FAIL",
-    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+    "outcome": "PASS",
+    "detail": ""
   },
   {
     "page": "invoices",
@@ -158,8 +158,8 @@
   {
     "page": "quotes",
     "control": "action:new-quote",
-    "outcome": "FAIL",
-    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+    "outcome": "PASS",
+    "detail": ""
   },
   {
     "page": "quotes",
@@ -188,8 +188,8 @@
   {
     "page": "collections",
     "control": "action:new-invoice",
-    "outcome": "FAIL",
-    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+    "outcome": "PASS",
+    "detail": ""
   },
   {
     "page": "collections",
@@ -265,7 +265,43 @@
   },
   {
     "page": "settings",
-    "control": "action:vat-export",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:secure-backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:restore",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:recover",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:demo",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:businesses",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:install",
     "outcome": "PASS",
     "detail": ""
   },
@@ -277,9 +313,51 @@
   },
   {
     "page": "items",
+    "control": "action:demo",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "items",
     "control": "action:new-item",
     "outcome": "PASS",
     "detail": ""
+  },
+  {
+    "page": "items",
+    "control": "other:2d4d540d-ea8e-4438-9fef-b1c1a51237cc",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "items",
+    "control": "other:2d4d540d-ea8e-4438-9fef-b1c1a51237cc",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "items",
+    "control": "other:d792b8cf-0812-4a4f-ba78-a6d42e504504",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "items",
+    "control": "other:d792b8cf-0812-4a4f-ba78-a6d42e504504",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "items",
+    "control": "other:23d645fc-6035-423a-a6fa-44cc80e6b708",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "items",
+    "control": "other:23d645fc-6035-423a-a6fa-44cc80e6b708",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
   },
   {
     "page": "items",

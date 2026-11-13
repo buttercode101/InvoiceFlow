@@ -22,8 +22,10 @@ InvoiceFlow is a local-first invoicing workspace for South African freelancers a
 | Need | Included workflow |
 | --- | --- |
 | Professional documents | Quotes, invoices, receipts, credit notes and customer statements |
-| Getting paid | Partial payments, ageing, reminder templates and existing checkout-link sharing |
+| Your branding | Logo upload and an accent colour applied to the document header rule, amount due and table headings |
+| Getting paid | Partial payments, ageing, four-stage payment reminders and existing checkout-link sharing |
 | Repeat work | Monthly recurring schedules that create a draft when you request it |
+| Line-item templates | Save your regular services once, then start an invoice or quote from a template |
 | South African businesses | Rand amounts, non-VAT defaults and VAT vendor settings |
 | Keeping records | Expenses, receipt attachments, PDF/CSV exports and backup/restore |
 | Separate businesses | Up to five local workspaces and isolated demo records |
@@ -40,12 +42,14 @@ There is no automatic payment collection, bank verification, cloud sync or backg
 Use Node.js 20 or newer for the checks and Python 3 for a simple local server. No npm runtime packages or install step are required.
 
 ```bash
-npm test              # 135 domain tests + 5 UI tests
+npm test              # 163 domain tests + 5 UI tests
 npm run check         # syntax-check every application module
 npm run test:visual   # browser audit of the live site (needs geckodriver + Firefox)
 node tests/harness/control-audit.mjs    # click every control on every screen
 node tests/harness/flow-audit.mjs       # full invoice/quote/customer/expense journeys
 node tests/harness/stress-audit.mjs     # 5 sequential creations, draft restore, validation
+node tests/harness/templates-ui.mjs      # template create/use/edit/delete in a real browser
+node tests/harness/branding-ui.mjs      # logo, accent colour and reminder stages in a real browser
 # append --local to any harness to test the local dist/ instead of the live site
 python3 -m http.server 3000 --directory dist
 ```

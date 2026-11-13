@@ -1,0 +1,74 @@
+[
+  {
+    "name": "Templates page renders",
+    "ok": true
+  },
+  {
+    "name": "empty state shown",
+    "ok": true
+  },
+  {
+    "name": "New template action present",
+    "ok": true
+  },
+  {
+    "name": "template dialog opens",
+    "ok": true
+  },
+  {
+    "name": "template appears in the list",
+    "ok": true
+  },
+  {
+    "name": "template total shown",
+    "ok": true
+  },
+  {
+    "name": "template saved and listed once",
+    "ok": true
+  },
+  {
+    "name": "editor opens",
+    "ok": true
+  },
+  {
+    "name": "template line prefilled",
+    "ok": true
+  },
+  {
+    "name": "template price prefilled",
+    "ok": true
+  },
+  {
+    "name": "invoice created from template",
+    "ok": true
+  },
+  {
+    "name": "template updated",
+    "ok": true
+  },
+  {
+    "name": "still one template",
+    "ok": true
+  },
+  {
+    "name": "add line works",
+    "ok": true
+  },
+  {
+    "name": "remove line works",
+    "ok": true
+  },
+  {
+    "name": "template deleted",
+    "ok": true
+  },
+  {
+    "name": "empty state returns after delete",
+    "ok": true
+  },
+  {
+    "name": "no JS errors",
+    "ok": true
+  }
+]

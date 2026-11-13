@@ -56,3 +56,11 @@
 .brief-body strong{display:block;font-weight:600;font-size:14px}
 .brief-list .btn{flex:0 0 auto}
 @media(max-width:560px){.brief-list li{flex-wrap:wrap;gap:10px}.brief-list .btn{width:100%;margin-top:6px}}
+
+/* Branding: logo and accent colour applied to documents. */
+.detail-paper{--accent:var(--brand,#184e43)}
+.invoice-top{border-top:3px solid var(--accent);padding-top:6px}
+.invoice-detail-lines thead th{color:var(--accent)}
+.invoice-top .text-right .invoice-title{color:var(--accent)}
+.doc-logo{display:block;max-height:56px;max-width:180px;object-fit:contain;margin-bottom:12px}
+.logo-preview{max-height:64px;max-width:180px;object-fit:contain;margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--paper)}

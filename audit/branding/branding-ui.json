@@ -1,0 +1,70 @@
+[
+  {
+    "name": "settings has an accent colour field",
+    "ok": true
+  },
+  {
+    "name": "settings has a logo upload field",
+    "ok": true
+  },
+  {
+    "name": "accent saved without error",
+    "ok": true
+  },
+  {
+    "name": "logo preview appears after choosing a file",
+    "ok": true
+  },
+  {
+    "name": "logo saved without error",
+    "ok": true
+  },
+  {
+    "name": "logo persists in the settings preview",
+    "ok": true
+  },
+  {
+    "name": "remove-logo button offered",
+    "ok": true
+  },
+  {
+    "name": "new invoice created for branding check",
+    "ok": true
+  },
+  {
+    "name": "document shows the logo",
+    "ok": true
+  },
+  {
+    "name": "document carries the accent variable",
+    "ok": true
+  },
+  {
+    "name": "reminder action available on an unpaid issued invoice",
+    "ok": true
+  },
+  {
+    "name": "reminder dialog opens",
+    "ok": true
+  },
+  {
+    "name": "four reminder stages plus generic tones",
+    "ok": true
+  },
+  {
+    "name": "final notice message rendered",
+    "ok": true
+  },
+  {
+    "name": "message shows the correct amount",
+    "ok": true
+  },
+  {
+    "name": "message does not claim it was sent",
+    "ok": true
+  },
+  {
+    "name": "no JS errors",
+    "ok": true
+  }
+]
