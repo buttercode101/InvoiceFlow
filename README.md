@@ -27,16 +27,22 @@ InvoiceFlow is a local-first invoicing workspace for South African freelancers a
 | South African businesses | Rand amounts, non-VAT defaults and VAT vendor settings |
 | Keeping records | Expenses, receipt attachments, PDF/CSV exports and backup/restore |
 | Separate businesses | Up to five local workspaces and isolated demo records |
+| AI co-pilot | Bring your own OpenAI-compatible key to draft invoices, quotes and expenses from plain language |
+| Cash foresight | 13-week cash forecast with a safe-to-spend figure and projected shortfall week |
+| Client intelligence | Reliability scores, average days-to-pay and tone-adapted follow-up drafts |
+| Statutory readiness | VAT201 working draft from issued invoices and recorded input VAT, plus CIPC annual-return reminders |
+| Money brief | A proactive brief on likely-late invoices, safe-to-spend, uncategorised expenses and backup age |
 
-There is no automatic payment collection, bank verification, cloud sync or background invoice sending. Recorded payments are your entries, not proof of bank settlement. Credit notes reduce unpaid balances; they do not issue refunds. Mixed VAT treatments require separate invoices. Read the [workflow and data details](PRODUCT-DETAILS.md) before relying on a specialised accounting workflow.
+There is no automatic payment collection, bank verification, cloud sync or background invoice sending. Recorded payments are your entries, not proof of bank settlement. Credit notes reduce unpaid balances; they do not issue refunds. Mixed VAT treatments require separate invoices. AI features use your own API key stored in this browser and always produce a draft for your review. Read the [workflow and data details](PRODUCT-DETAILS.md) before relying on a specialised accounting workflow.
 
 ## Quick start
 
-Use Node.js 24 for the checks and Python 3 for a simple local server. No npm runtime packages or install step are required.
+Use Node.js 20 or newer for the checks and Python 3 for a simple local server. No npm runtime packages or install step are required.
 
 ```bash
-npm test
-npm run check
+npm test              # 135 domain tests + 3 UI tests
+npm run check         # syntax-check every application module
+npm run test:visual   # browser audit of the live site (needs geckodriver + Firefox)
 python3 -m http.server 3000 --directory dist
 ```
 
@@ -48,16 +54,26 @@ Records are stored in IndexedDB per browser and origin. Clearing browser data, c
 
 ## Source and hosting
 
-The complete application is now present in [buttercode101/InvoiceFlow](https://github.com/buttercode101/InvoiceFlow), on `main`. The earlier empty-repository/write-permission note described 23 October and is superseded by the source import. The app is served from `dist/`; this repository includes a static-hosting manifest and a test workflow. Their presence does not prove the connected Vercel production project uses the latest commit. Deployment linkage and production equality must be verified separately.
+The complete application is present in [buttercode101/InvoiceFlow](https://github.com/buttercode101/InvoiceFlow), on `main`. The app is served from `dist/`; this repository includes a static-hosting manifest and a test workflow.
+
+**Deployment equality verified 2026-11-13:** all ten production assets (`app.js`, `core.js`, `style.css`, `draft.js`, `receipt.js`, `pdf.js`, `sw.js`, `index.html`, `manifest.webmanifest`, `icon.svg`) SHA-256 hash-match the repository at commit `e286e93`. Re-verify after any new deploy:
+
+```bash
+for f in app.js core.js style.css draft.js receipt.js pdf.js sw.js index.html manifest.webmanifest icon.svg; do
+  printf "%s  " "$(sha256sum dist/$f | cut -c1-12)"
+  curl -s "https://invoiceflow-za.vercel.app/$f" | sha256sum | cut -c1-12
+done
+```
 
 ## Project guide
 
 - [Fresh repository checks and release limits](REPOSITORY-VERIFICATION.md)
 - [Detailed features and tax/data boundaries](PRODUCT-DETAILS.md)
+- [Defect register](DEFECT_REGISTER.md)
 - [Previous release evidence](RELEASE_2026-10-23.md) and [validation](VALIDATION.md)
 - [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md)
 
-Current source version: **0.4.0**. Tax fields are aids, not SARS verification or tax advice.
+Current source version: **0.4.8**. Tax fields are aids, not SARS verification or tax advice.
 
 ## Source layout note
 
@@ -65,6 +81,6 @@ Current source version: **0.4.0**. Tax fields are aids, not SARS verification or
 no bundler or build step. `dist/core.js` (domain logic, imported directly by
 `tests/`), `dist/app.js` (UI) and `dist/pdf.js` are hand-maintained ES
 modules served as-is by any static host and copied verbatim into the Android
-assets by `android/prepare.mjs`. `src/lib/validation.js` is the only file
-outside `dist/` (used by the vitest UI tests). If you add a build step later,
+assets by `android/prepare.mjs`. There is no source outside `dist/`; the
+vitest UI tests import `dist/core.js` directly. If you add a build step later,
 update `tests/` imports, `sw.js` precache and `android/prepare.mjs` together.

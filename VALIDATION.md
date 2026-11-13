@@ -1,5 +1,8 @@
 # Product decision and verification · 21 October 2026
 
+> **Historical document — superseded.** This document records validation evidence for v0.3.1 at 2026-10-22. The regression suite has since grown to 135 domain tests plus 5 UI tests. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 ## Decision
 
 Build InvoiceFlow first. This is an execution/budget judgement, not evidence that customers will pay. The basic invoicing category is crowded; the original broad pitch overstates its advantage.

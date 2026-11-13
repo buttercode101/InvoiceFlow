@@ -1,5 +1,8 @@
 # Performance Report — InvoiceFlow
 
+> **Historical document — superseded.** This report records the 2026-11-06 state, when `vitest` was not installed and `npm test` ran 67 domain tests. The UI suite now runs and the total is 135 domain tests plus 5 UI tests. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 Date: 2026-11-06 · Env: Termux, Node v26.3.1 (repo/CI: 24.x).
 
 ## Observed

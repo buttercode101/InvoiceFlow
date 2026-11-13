@@ -1,5 +1,8 @@
 # Acceptance Test Plan — InvoiceFlow
 
+> **Historical document — superseded.** This plan records the 2026-11-06 state, when `vitest` was not installed and `npm test` ran 67 domain tests. The UI suite now runs and the total is 135 domain tests plus 5 UI tests. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 Date: 2026-11-06 · Tested commit: `7d8337f` · Env: Termux, Node v26.3.1 (CI: 24.x; vitest not installed; npm test = node --test tests/*.test.js = 67/67 pass).
 
 ## Core journey

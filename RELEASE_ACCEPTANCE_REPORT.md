@@ -1,5 +1,8 @@
 # Release Acceptance Report — InvoiceFlow
 
+> **Historical document — superseded.** This report records the 2026-11-06 acceptance pass. Its open gaps — version drift (I-001), missing `.env.example` (I-002) and the unavailable vitest harness (I-003) — have since been closed, and the product version is now 0.4.8. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 Date: 2026-11-06 · Starting commit `7d8337f9b0235d72fd210800c1646eaa05bd3276`
 Tested commit: `7d8337f` + partial fix set (documents only — no source changes due to vitest/env blockers) + 7 docs.
 

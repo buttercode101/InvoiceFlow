@@ -1,5 +1,8 @@
 # Responsive Compatibility Report — InvoiceFlow
 
+> **Historical document — superseded.** This report records an earlier responsive pass. The current verification is `npm run test:visual`, which sweeps 11 pages across 10 viewport widths. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 Date: 2026-11-06 · Env: Termux + browser (no physical device).
 
 ## Verified

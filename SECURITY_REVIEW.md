@@ -1,5 +1,8 @@
 # Security Review — InvoiceFlow
 
+> **Historical document — superseded.** This review records the 2026-11-06 state, when `vitest` was not installed and `npm audit` could not be run from that environment. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 Date: 2026-11-06 · Commit `7d8337f` + partial fix set.
 
 ## Observed (verified)

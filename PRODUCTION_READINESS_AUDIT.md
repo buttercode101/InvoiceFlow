@@ -1,5 +1,7 @@
 # Production Readiness Audit — InvoiceFlow
 
+> **Historical document — superseded.** This audit describes the repository at commit `7d8337f` (2026-11-06). Several statements below are no longer true: `vitest` is now installed and the UI suite runs, `src/lib/validation.js` has been removed, the Phase 1–4 features are shipped, and the product version is 0.4.8. See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
 Inspection date: 2026-11-06 · Owner: Buttercode Systems (buttercode101)
 Repository: https://github.com/buttercode101/InvoiceFlow · Branch: `main`
 Starting commit: `7d8337f9b0235d72fd210800c1646eaa05bd3276` (2026-11-05)

@@ -1,5 +1,8 @@
 # Repository verification — 26 October 2026
 
+> **Historical document — superseded.** This document records repository checks at an earlier commit. Current verification status is in [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md). See [RELEASE_2026-11-13.md](RELEASE_2026-11-13.md) and [DEFECT_REGISTER.md](DEFECT_REGISTER.md) for the current state. The original text is preserved unchanged for provenance.
+
+
 ## Scope and baseline
 
 Inspected the actual repository, package/configuration files, existing workflow definitions and release notes. Baseline commit: `c013e65c33d7b093aa058f2108987d602dd0d166`. This record covers repository presentation, developer setup, local verification and the maintenance changes listed below.
