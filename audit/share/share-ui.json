@@ -1,0 +1,38 @@
+[
+  {
+    "name": "invoice page offers Share invoice PDF",
+    "ok": true
+  },
+  {
+    "name": "invoice page still offers message text",
+    "ok": true
+  },
+  {
+    "name": "old \"Share invoice text\" label is gone",
+    "ok": true
+  },
+  {
+    "name": "share-pdf produced a share handoff or a PDF download",
+    "ok": true
+  },
+  {
+    "name": "no error surfaced",
+    "ok": true
+  },
+  {
+    "name": "quote page offers Share quote PDF",
+    "ok": true
+  },
+  {
+    "name": "quote page still offers message text",
+    "ok": true
+  },
+  {
+    "name": "quote share produced a handoff or download",
+    "ok": true
+  },
+  {
+    "name": "no JS errors",
+    "ok": true
+  }
+]
