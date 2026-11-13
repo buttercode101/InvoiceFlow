@@ -56,7 +56,7 @@ Records are stored in IndexedDB per browser and origin. Clearing browser data, c
 
 The complete application is present in [buttercode101/InvoiceFlow](https://github.com/buttercode101/InvoiceFlow), on `main`. The app is served from `dist/`; this repository includes a static-hosting manifest and a test workflow.
 
-**Deployment equality verified 2026-11-13:** all ten production assets (`app.js`, `core.js`, `style.css`, `draft.js`, `receipt.js`, `pdf.js`, `sw.js`, `index.html`, `manifest.webmanifest`, `icon.svg`) SHA-256 hash-match the repository at commit `e286e93`. Re-verify after any new deploy:
+**Deployment equality verified 2026-11-13:** all ten production assets (`app.js`, `core.js`, `style.css`, `draft.js`, `receipt.js`, `pdf.js`, `sw.js`, `index.html`, `manifest.webmanifest`, `icon.svg`) SHA-256 hash-match the repository at commit `1057d46`. Re-verify after any new deploy:
 
 ```bash
 for f in app.js core.js style.css draft.js receipt.js pdf.js sw.js index.html manifest.webmanifest icon.svg; do
