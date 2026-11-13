@@ -4,6 +4,21 @@ Date: 2026-11-13 · Starting commit `e286e93` · Phase 1–4 feature set, pre-re
 
 ## Resolved in this pass
 
+### I-004 — Second invoice creation crashed: `i.lines is undefined` (P1, FIXED 2026-11-13)
+- Evidence: real-browser reproduction. `new-invoice` ran `route={page:'invoice',id:newId}; editLines=[]; clearDraft();` — `clearDraft()` executed *after* `route` was reassigned, so `draftKey()` (which reads the current route) deleted the draft keyed to the saved invoice id instead of the keyed-to-`undefined` draft being edited. The stale draft survived, was reloaded on the next "New invoice", and `pricingFields()` called `breakdown()` on it.
+- Fix: `clearDraft()` now runs before `route` is reassigned. Independently, the guard in `pricingFields` was tightened from `i?` to `i?.lines?` so an empty draft cannot reach `breakdown()`.
+- Verified: second, third, fourth and fifth invoice creations all succeed with zero JS errors (`tests/harness/stress-audit.mjs`).
+
+### I-005 — Settings page threw `ReferenceError: when is not defined` after any encrypted backup (P1, FIXED 2026-11-13)
+- Evidence: control audit stack `backupLabel@app.js:23:314 ← settingsPage ← renderPage ← render`. `backupLabel()` declared `const when` *inside* a `try` block but referenced it in the `return` *outside* that block, so the function threw whenever `state.lastBackupAt` was set — i.e. after any encrypted backup. Reachable from `new-invoice`, which redirects to Settings when the business name is empty.
+- Fix: hoisted to `let when=''` before the `try`. Swept the whole codebase for the same `try{const …}` scoping pattern; this was the only offender.
+- Verified: `#last-backup` now renders `Last backup: just now (13 Nov 2026)` instead of throwing.
+
+### I-006 — Invoice document showed internal and redundant rows (P2, FIXED 2026-11-13)
+- Evidence: rendered document read `Payments recorded R 0,00` and `Credit notes R 0,00` on every unpaid invoice, printed `Value excluding VAT` / `VAT 0%` to non-VAT businesses, and carried the internal note "Draft only — not yet issued." inside the customer-facing document.
+- Fix: zero-value rows are now conditional; the VAT breakdown is suppressed for non-VAT businesses; the internal draft note was removed (the title already carries `· DRAFT`). Payment instructions now repeat the due date, matching standard invoice layout.
+- Verified by rendering the document and reading it back.
+
 ### I-001 — Version drift (P2, FIXED 2026-11-13)
 - Evidence: `package.json: 0.4.0` vs README/`PRODUCT-DETAILS.md: 0.4.0` vs service-worker cache `invoiceflow-v048-phase4-20261112`. The cache key had been bumped for Phase 4 while the packaged version was not.
 - Fix: aligned to **0.4.8** across `package.json`, `README.md`, `PRODUCT-DETAILS.md` and the service-worker cache key (`invoiceflow-v048`). Verified `package.json` parses and `npm run check` passes.

@@ -40,9 +40,13 @@ There is no automatic payment collection, bank verification, cloud sync or backg
 Use Node.js 20 or newer for the checks and Python 3 for a simple local server. No npm runtime packages or install step are required.
 
 ```bash
-npm test              # 135 domain tests + 3 UI tests
+npm test              # 135 domain tests + 5 UI tests
 npm run check         # syntax-check every application module
 npm run test:visual   # browser audit of the live site (needs geckodriver + Firefox)
+node tests/harness/control-audit.mjs    # click every control on every screen
+node tests/harness/flow-audit.mjs       # full invoice/quote/customer/expense journeys
+node tests/harness/stress-audit.mjs     # 5 sequential creations, draft restore, validation
+# append --local to any harness to test the local dist/ instead of the live site
 python3 -m http.server 3000 --directory dist
 ```
 

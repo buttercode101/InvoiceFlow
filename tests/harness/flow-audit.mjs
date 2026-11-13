@@ -113,7 +113,31 @@ try {
   await closeDialog();
   check('payment reversal recorded', (await R('document.body.innerText')).includes('Reversed entry'));
 
-  // issue a credit note
+  // void while still eligible (no credit notes yet)
+  check('void button offered on a clean issued invoice', await R(`!!document.querySelector('[data-action="void-invoice"]')`));
+  await click(`(()=>{const b=document.querySelector('[data-action="void-invoice"]');if(b)b.click();return true})()`);
+  await wd.sleep(1200);
+  await submitDialog();
+  await wd.sleep(1500);
+  await closeDialog();
+  check('invoice voided', /VOID/i.test(await R('document.body.innerText')), 'status not VOID');
+
+  // a fresh invoice carrying a credit note must NOT offer void
+  await gotoPage('invoices');
+  await click(`(()=>{const b=document.querySelector('[data-action="new-invoice"]');if(b)b.click();return true})()`);
+  await wd.sleep(1400);
+  await setVal('#invoice-customer', await R(`(()=>{const s=document.querySelector('#invoice-customer');return s&&s.options.length>1?s.options[1].value:''})()`));
+  await setVal('[data-field=description]', 'Credit note flow');
+  await setVal('[data-field=price]', '400');
+  await wd.sleep(400);
+  await click(`(()=>{const b=document.querySelector('#invoice-form button[type=submit]');if(b)b.click();return true})()`);
+  await wd.sleep(1800);
+  await closeDialog();
+  await click(`(()=>{const b=document.querySelector('[data-action="issue-invoice"]');if(b)b.click();return true})()`);
+  await wd.sleep(1000);
+  await submitDialog();
+  await wd.sleep(1500);
+  await closeDialog();
   await click(`(()=>{const b=document.querySelector('[data-action="credit"]');if(b)b.click();return true})()`);
   await wd.sleep(1200);
   await setVal('#credit-reason', 'Flow audit credit');
@@ -121,14 +145,7 @@ try {
   await wd.sleep(1500);
   await closeDialog();
   check('credit note issued', (await R('document.body.innerText')).includes('CRN-'));
-
-  // void the invoice
-  await click(`(()=>{const b=document.querySelector('[data-action="void-invoice"]');if(b)b.click();return true})()`);
-  await wd.sleep(1200);
-  await submitDialog();
-  await wd.sleep(1500);
-  await closeDialog();
-  check('invoice voided', /VOID/i.test(await R('document.body.innerText')), 'status not VOID');
+  check('void button hidden once a credit note exists', !(await R(`!!document.querySelector('[data-action="void-invoice"]')`)));
 
   // ---------------- SECOND INVOICE (regression) ----------------
   console.log('\n=== SECOND INVOICE (regression) ===');

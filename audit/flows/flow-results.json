@@ -8,9 +8,8 @@
     "ok": true
   },
   {
-    "name": "invoice appears in list",
-    "ok": false,
-    "detail": ""
+    "name": "invoice is shown on screen",
+    "ok": true
   },
   {
     "name": "invoice detail opens",
@@ -22,16 +21,26 @@
   },
   {
     "name": "invoice marked sent",
-    "ok": false,
-    "detail": ""
+    "ok": true
   },
   {
     "name": "payment recorded",
-    "ok": false,
-    "detail": ""
+    "ok": true
+  },
+  {
+    "name": "balance reduced by the payment",
+    "ok": true
   },
   {
     "name": "payment reversal recorded",
+    "ok": true
+  },
+  {
+    "name": "void button offered on a clean issued invoice",
+    "ok": true
+  },
+  {
+    "name": "invoice voided",
     "ok": true
   },
   {
@@ -39,9 +48,8 @@
     "ok": true
   },
   {
-    "name": "invoice voided",
-    "ok": false,
-    "detail": ""
+    "name": "void button hidden once a credit note exists",
+    "ok": true
   },
   {
     "name": "second invoice editor opens (the reported bug)",

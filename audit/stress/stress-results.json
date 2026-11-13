@@ -1,0 +1,74 @@
+[
+  {
+    "name": "invoice #1 created",
+    "ok": true
+  },
+  {
+    "name": "invoice #2 created",
+    "ok": true
+  },
+  {
+    "name": "invoice #3 created",
+    "ok": true
+  },
+  {
+    "name": "invoice #4 created",
+    "ok": true
+  },
+  {
+    "name": "invoice #5 created",
+    "ok": true
+  },
+  {
+    "name": "no JS errors after 5 creations",
+    "ok": true
+  },
+  {
+    "name": "draft content restored after reload",
+    "ok": true
+  },
+  {
+    "name": "draft restore toast shown",
+    "ok": true
+  },
+  {
+    "name": "empty invoice is blocked with a validation message",
+    "ok": true
+  },
+  {
+    "name": "app still alive after validation failure",
+    "ok": true
+  },
+  {
+    "name": "no JS errors from validation",
+    "ok": true
+  },
+  {
+    "name": "backup action present",
+    "ok": true
+  },
+  {
+    "name": "restore action present",
+    "ok": true
+  },
+  {
+    "name": "recover action present",
+    "ok": true
+  },
+  {
+    "name": "invoice rows are listed",
+    "ok": true
+  },
+  {
+    "name": "invoice detail opened",
+    "ok": true
+  },
+  {
+    "name": "Download PDF action present",
+    "ok": true
+  },
+  {
+    "name": "no JS errors across the whole stress run",
+    "ok": true
+  }
+]
