@@ -1,0 +1,114 @@
+[
+  {
+    "name": "editor opens",
+    "ok": true
+  },
+  {
+    "name": "invoice draft saved",
+    "ok": true
+  },
+  {
+    "name": "invoice appears in list",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "name": "invoice detail opens",
+    "ok": true
+  },
+  {
+    "name": "edit draft reopens the editor",
+    "ok": true
+  },
+  {
+    "name": "invoice marked sent",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "name": "payment recorded",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "name": "payment reversal recorded",
+    "ok": true
+  },
+  {
+    "name": "credit note issued",
+    "ok": true
+  },
+  {
+    "name": "invoice voided",
+    "ok": false,
+    "detail": ""
+  },
+  {
+    "name": "second invoice editor opens (the reported bug)",
+    "ok": true
+  },
+  {
+    "name": "no JS errors after second open",
+    "ok": true
+  },
+  {
+    "name": "quote editor opens",
+    "ok": true
+  },
+  {
+    "name": "quote saved",
+    "ok": true
+  },
+  {
+    "name": "quote detail opens",
+    "ok": true
+  },
+  {
+    "name": "quote accepted",
+    "ok": true
+  },
+  {
+    "name": "quote converted to an invoice",
+    "ok": true
+  },
+  {
+    "name": "customer created",
+    "ok": true
+  },
+  {
+    "name": "item created",
+    "ok": true
+  },
+  {
+    "name": "expense created with VAT",
+    "ok": true
+  },
+  {
+    "name": "business details saved",
+    "ok": true
+  },
+  {
+    "name": "VAT201 panel renders",
+    "ok": true
+  },
+  {
+    "name": "CIPC panel renders",
+    "ok": true
+  },
+  {
+    "name": "cash flow forecast renders",
+    "ok": true
+  },
+  {
+    "name": "cash flow scenario applied",
+    "ok": true
+  },
+  {
+    "name": "backup action available",
+    "ok": true
+  },
+  {
+    "name": "no JS errors across all flows",
+    "ok": true
+  }
+]

@@ -1,0 +1,302 @@
+[
+  {
+    "page": "overview",
+    "control": "action:demo",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "action:new-invoice",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "action:copilot",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "action:brief-collections",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "action:brief-cashflow",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "action:brief-backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "page:invoices",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "overview",
+    "control": "view:ffc605f0-a90e-4fb0-bb9d-5cf12702e43e",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "view:39665ce5-b561-4690-8bc2-b8d92be34616",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "view:592b47ec-ddeb-4766-b80b-40459f404f3a",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "view:e3a165cb-636d-4446-8199-69067652ccc2",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "view:055353ab-305b-4dd8-a263-e31b92b61916",
+    "outcome": "SKIP",
+    "detail": "element gone after nav"
+  },
+  {
+    "page": "overview",
+    "control": "action:new-expense",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "action:export-invoices",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "action:new-invoice",
+    "outcome": "FAIL",
+    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+  },
+  {
+    "page": "invoices",
+    "control": "action:copilot",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:all",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:draft",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:sent",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:partial",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:overdue",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:paid",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:void",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "filter:credited",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "invoices",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "quotes",
+    "control": "action:new-quote",
+    "outcome": "FAIL",
+    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+  },
+  {
+    "page": "quotes",
+    "control": "action:copilot",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "quotes",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "collections",
+    "control": "action:bank-import",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "collections",
+    "control": "action:ageing-export",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "collections",
+    "control": "action:new-invoice",
+    "outcome": "FAIL",
+    "detail": "REJ [ReferenceError] when is not defined\nbackupLabel@https://invoiceflow-za.vercel.app/app.js:23:314\nsettingsPage@https://invoiceflow-za.vercel.app/app.js:96:2296\nrenderPage@https://invoiceflow-za.vercel.app/app.js:39:34"
+  },
+  {
+    "page": "collections",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "expenses",
+    "control": "action:import-expenses",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "expenses",
+    "control": "action:new-expense",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "expenses",
+    "control": "action:new-expense-photo",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "expenses",
+    "control": "action:export-expenses",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "expenses",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "cashflow",
+    "control": "action:cashflow-reset",
+    "outcome": "SKIP",
+    "detail": "destructive — flows audit"
+  },
+  {
+    "page": "cashflow",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "customers",
+    "control": "action:new-customer",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "customers",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "compliance",
+    "control": "action:vat-export",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "compliance",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:vat-export",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "settings",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "items",
+    "control": "action:new-item",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "items",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "reports",
+    "control": "action:export-report",
+    "outcome": "PASS",
+    "detail": ""
+  },
+  {
+    "page": "reports",
+    "control": "action:backup",
+    "outcome": "PASS",
+    "detail": ""
+  }
+]
