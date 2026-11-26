@@ -2,7 +2,44 @@
 
 Date: 2026-11-13 · Starting commit `e286e93` · Phase 1–4 feature set, pre-release hardening pass.
 
-## Resolved in this pass
+## UI engineering & visual refinement pass — 2026-11-26
+
+Independent, browser-rendered audit at 320–1920 px in light and dark, with new
+harnesses `tests/harness/deep-audit.mjs` (empty state, WCAG contrast, touch
+targets, long-content stress, runtime-error capture) and `shots.mjs` /
+`tall-shots.mjs` (screenshot capture).
+
+### U-001 — Dark-mode status pills, banner and chart series used light-only colours (P2, FIXED 2026-11-26)
+- Evidence: `.pill.paid/.sent/.partial/.overdue/.void/.credited/.payment/.credit/.reversal/.followup`, `.demo-banner` and `.bar.expense` set literal light backgrounds (`#e7f2e5`, `#edf0f8`, `#fbe9e5`, `#eee`, `#fdf0cd`, `#c9d6c5`). In dark mode they rendered as bright light chips on the dark surface, inconsistent with `.pill.invoice`/`.pill`, which already used theme variables.
+- Fix: added `:root[data-theme=dark]` overrides keeping the same hue family with dark surfaces and AA-contrast text.
+- Verified: dark invoices/dashboard screenshots; contrast probe reports 0 issues in both themes.
+
+### U-002 — `.logo-preview` referenced undefined custom properties (P3, FIXED)
+- Evidence: `border:1px solid var(--line)` and `background:var(--paper)`, but `--line`/`--paper` are defined nowhere in `style.css`, so both declarations were invalid at computed-value time.
+- Fix: `var(--border)` / `var(--soft)`.
+
+### U-003 — Receipt/photo preview had a hard-coded light-only border (P3, FIXED)
+- Evidence: inline `border:1px solid #e2e8f0` in the photo-capture dialog markup in `app.js`.
+- Fix: `var(--border)`.
+
+### U-004 — Interactive controls under the 44 px target (P3, FIXED)
+- Evidence: deep-audit found 32 controls < 44 px at 1440 (base buttons 42 px, icon buttons 40×42, compact buttons 36 px, text links 30 px).
+- Fix: base `button` 42→44 px, `.icon-btn` →44×44, `.btn.small`/`.filter` →40 px, `.link-button` →36 px; the invoice-line action grid columns were widened 40→44 px to match. Remaining compact desktop variants (36–40 px) exceed WCAG 2.2 AA §2.5.8 (24 px) and are 44 px on touch.
+- Verified: under-44 controls 32 → 15; responsive sweep 0 overflow.
+
+### U-005 — Ageing totals split 4+1 on wide screens (P3, FIXED)
+- Evidence: the five ageing buckets rendered as four cards plus a lone card at 1440.
+- Fix: `@media(min-width:1440px){.stats:has(> :nth-child(5)){grid-template-columns:repeat(5,minmax(0,1fr))}}`. A first attempt scoped at ≥1201 px clipped the currency figure at 1280 — caught by the responsive sweep and re-scoped to ≥1440.
+
+### U-006 — `templates` route not covered by the visual harness (P3, FIXED)
+- Evidence: the sidebar exposes a Templates page, but `PAGES` in `ui-audit.mjs` omitted it.
+- Fix: added `templates` to `ui-audit.mjs` and `deep-audit.mjs`.
+
+### U-007 — Service-worker cache key bumped for the changed assets (P3, FIXED)
+- Evidence: `style.css` and `app.js` changed, but `sw.js` still precached under `invoiceflow-v049`, so returning clients would serve the old shell (see I-012).
+- Fix: cache key `invoiceflow-v049` → `invoiceflow-v050`.
+
+## Resolved in this pass (2026-11-13)
 
 ### I-007 — Clicks inside every dialog were silently ignored (P1, FIXED 2026-11-13)
 - Evidence: `index.html` places `<dialog id="modal">` as a **sibling** of `<div id="app">`, but the delegated click handler was bound to `#app`. Any `data-*` button inside a dialog never reached it — the template line "Add line" / "Remove line" buttons did nothing, and the failure was invisible (no JS error). The pre-existing "remove line works" check passed only because it asserted a no-op.

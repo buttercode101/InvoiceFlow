@@ -81,7 +81,7 @@ done
 - [Previous release evidence](RELEASE_2026-10-23.md) and [validation](VALIDATION.md)
 - [Contributing](CONTRIBUTING.md) · [Security reporting](SECURITY.md)
 
-Current source version: **0.4.8**. Tax fields are aids, not SARS verification or tax advice.
+Current source version: **0.4.9**. Tax fields are aids, not SARS verification or tax advice.
 
 ## Source layout note
 

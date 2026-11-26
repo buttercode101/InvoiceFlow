@@ -12,7 +12,7 @@ const LIVE = 'https://invoiceflow-za.vercel.app/';
 const LOCAL = process.argv.includes('--local');
 const BASE = LOCAL ? 'http://127.0.0.1:38080/' : LIVE;
 
-const PAGES = ['overview','invoices','quotes','collections','expenses','cashflow','customers','compliance','settings','items','reports'];
+const PAGES = ['overview','invoices','quotes','collections','expenses','cashflow','customers','compliance','settings','items','templates','reports'];
 const WIDTHS = [320, 360, 375, 390, 430, 768, 1024, 1280, 1440, 1920];
 
 let failures = 0, checks = 0;

@@ -1,6 +1,6 @@
 # Workflow and data details
 
-# InvoiceFlow ZA · v0.4.8
+# InvoiceFlow ZA · v0.4.9
 
 A local-first invoicing and cash-collection workspace for South African small businesses. Source recovered from the original Sites repository, rather than rebuilt. No runtime packages, paid API or server database are required.
 

@@ -509,7 +509,7 @@ function openCopilot(){
           for(let n=0;n<bytes.length;n+=8192)b64+=String.fromCharCode(...bytes.subarray(n,n+8192));
           const dataURL = `data:${file.type};base64,${btoa(b64)}`;
           // Show image preview in a small dialog and ask for a caption
-          modalForm('Photo captured',`<div class="field"><img src="${dataURL}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid #e2e8f0;margin-bottom:12px"></div><div class="field"><label for="copilot-photo-caption">Describe what the photo shows</label><textarea id="copilot-photo-caption" name="caption" rows="2" placeholder="e.g. Receipt from ACME Supplies for R450…"></textarea></div><p class="form-note small muted">InvoiceFlow reads text you type. Photos are shown for your reference; nothing is extracted automatically unless you use BYOK AI.</p>`,async f=>{
+          modalForm('Photo captured',`<div class="field"><img src="${dataURL}" style="max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border);margin-bottom:12px"></div><div class="field"><label for="copilot-photo-caption">Describe what the photo shows</label><textarea id="copilot-photo-caption" name="caption" rows="2" placeholder="e.g. Receipt from ACME Supplies for R450…"></textarea></div><p class="form-note small muted">InvoiceFlow reads text you type. Photos are shown for your reference; nothing is extracted automatically unless you use BYOK AI.</p>`,async f=>{
             const cap = (f.get('caption')||'').trim();
             const ta=$('#copilot-cmd');if(ta){ta.value=(ta.value?ta.value+' ':'')+`Photo: ${cap||'receipt/note'}`;rawInput=ta.value;}
             modal.close();renderModal();
