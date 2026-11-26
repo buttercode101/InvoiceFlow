@@ -64,3 +64,77 @@
 .invoice-top .text-right .invoice-title{color:var(--accent)}
 .doc-logo{display:block;max-height:56px;max-width:180px;object-fit:contain;margin-bottom:12px}
 .logo-preview{max-height:64px;max-width:180px;object-fit:contain;margin-top:10px;border:1px solid var(--line);border-radius:8px;padding:6px;background:var(--paper)}
+
+
+/* Responsive containment and interaction quality pass (2026-11-26) */
+:root{--content-max:1500px;--control-target:44px;--motion-fast:140ms;--motion-base:200ms}
+html{width:100%;min-width:0;scroll-padding-top:1rem}
+body,#app,.shell,.workspace,.content,.panel,.panel-body,.editor-grid,.editor-aside,.settings-wrap{min-width:0;max-width:100%}
+body{overflow-wrap:break-word}
+img,video,canvas,svg,iframe{max-width:100%}
+img,video{height:auto}
+.content{width:100%;max-width:var(--content-max)}
+.heading,.heading>* ,.toolbar>* ,.topbar>* ,.top-right,.actions,.filters,.panel-head>*{min-width:0}
+.heading,.panel-head,.toolbar,.banner,.invoice-top,.list-card{flex-wrap:wrap}
+.heading .actions{max-width:100%}
+.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
+.stat,.stat-value,.stat-label,.stat-note{min-width:0}
+.stat-value{white-space:normal;overflow-wrap:anywhere;line-height:1.2;font-variant-numeric:tabular-nums}
+.table-wrap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
+.table-wrap table{max-width:100%}
+td,th{overflow-wrap:anywhere}
+input,select,textarea{max-width:100%;min-width:0}
+button,a,.btn,.icon-btn,.filter,.nav-item{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{scroll-margin:1rem}
+dialog{max-width:calc(100vw - 24px);max-width:calc(100dvw - 24px);max-height:calc(100dvh - 24px);overscroll-behavior:contain}
+.dialog-body{min-width:0;overflow-wrap:anywhere}
+#toast{width:max-content;width:fit-content;max-width:calc(100vw - 24px);max-width:calc(100dvw - 24px);overflow-wrap:anywhere}
+code,pre,.address,.invoice-title,.subtitle,.form-note,.error{overflow-wrap:anywhere}
+.demo-banner{background:#fdf0cd;color:#624b16;border-color:#e6d4a6}
+:root[data-theme=dark] .demo-banner{background:#3a301d;color:#f2d89c;border-color:#66532c}
+.btn,.icon-btn,.filter,.nav-item{transition:background-color var(--motion-fast) ease,color var(--motion-fast) ease,border-color var(--motion-fast) ease,transform var(--motion-fast) ease}
+.btn:active,.icon-btn:active,.filter:active{transform:translateY(1px)}
+@media(max-width:1024px){.grid-main{grid-template-columns:minmax(0,1fr)}.dashboard-secondary{grid-template-columns:repeat(2,minmax(0,1fr))}.editor-grid{grid-template-columns:minmax(0,1fr)}.editor-aside{min-width:0}}
+@media(max-width:767px){
+ .content{padding-left:clamp(14px,4vw,20px);padding-right:clamp(14px,4vw,20px)}
+ .topbar{gap:10px;padding-left:clamp(12px,3.5vw,20px);padding-right:clamp(12px,3.5vw,20px)}
+ .top-right{gap:8px;flex-wrap:wrap;justify-content:flex-end}
+ .heading{align-items:flex-start}
+ .heading>div:first-child{flex:1 1 180px}
+ .heading .actions{flex:0 1 auto}
+ .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .stat-value{font-size:clamp(17px,5.4vw,26px);letter-spacing:-.6px}
+ .dashboard-secondary{display:block}
+ .editor-aside{display:block}
+ .invoice-top>div{min-width:0;max-width:100%}
+ .invoice-parties>*{min-width:0;overflow-wrap:anywhere}
+ .detail-paper{min-width:0;max-width:100%;padding:clamp(16px,5vw,24px)}
+ .invoice-detail-lines{width:max-content;min-width:420px;max-width:none}
+ .invoice-line{min-width:0;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 40px}
+ .invoice-line>*{min-width:0}
+ .invoice-line input{min-width:0;padding-left:8px;padding-right:8px}
+ .line-total{overflow-wrap:anywhere}
+ .dialog-body{padding:clamp(16px,5vw,20px)}
+ .dialog-head,.dialog-foot{padding-left:clamp(14px,5vw,20px);padding-right:clamp(14px,5vw,20px)}
+ .search{min-width:0;width:100%;max-width:none}
+ .toolbar .filters{max-width:100%}
+ .list-card>*{min-width:0;overflow-wrap:anywhere}
+}
+@media(max-width:420px){
+ .heading .actions{width:100%}
+ .heading .actions .btn{flex:1 1 auto;white-space:normal}
+ .stats{gap:8px}
+ .stat{min-height:0;padding:13px}
+ .stat-label{gap:5px;font-size:10px;overflow-wrap:anywhere}
+ .stat-note{font-size:10px}
+ .panel-head{align-items:flex-start}
+ .panel-head .actions{width:100%}
+ .form-grid{grid-template-columns:minmax(0,1fr)}
+ .span-2{grid-column:auto}
+ .invoice-parties{grid-template-columns:minmax(0,1fr)}
+ .invoice-line{grid-template-columns:minmax(0,1fr) minmax(0,1fr) 36px;gap:7px}
+ .invoice-line .line-desc{grid-column:1/-1}
+ .invoice-line .line-total{grid-column:1/3;text-align:left;padding-top:0}
+ .invoice-line>.icon-btn{grid-column:3;grid-row:2}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
