@@ -77,7 +77,6 @@ img,video{height:auto}
 .heading,.heading>* ,.toolbar>* ,.topbar>* ,.top-right,.actions,.filters,.panel-head>*{min-width:0}
 .heading,.panel-head,.toolbar,.banner,.invoice-top,.list-card{flex-wrap:wrap}
 .heading .actions{max-width:100%}
-.stats{grid-template-columns:repeat(4,minmax(0,1fr))}
 .stat,.stat-value,.stat-label,.stat-note{min-width:0}
 .stat-value{white-space:normal;overflow-wrap:anywhere;line-height:1.2;font-variant-numeric:tabular-nums}
 .table-wrap{max-width:100%;overscroll-behavior-x:contain;-webkit-overflow-scrolling:touch}
